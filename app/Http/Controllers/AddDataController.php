@@ -136,21 +136,32 @@ class AddDataController extends Controller
             'issuance_date.required' => 'Date is required',
             'location.required' => 'Location is required'
         ]);
-        $insertIssuance = [
-            'stock_id' => $request->input('stock_id'),
-            'employee_id' => $request->input('employee_id'),
-            'issuance_date' => $request->input('issuance_date'),
-            'location' => $request->input('location'),
-            'created_at' => Carbon::now()
-        ];
-        $response = Issuance::insert($insertIssuance);
-        Stock::where('id', $request->input('stock_id'))->update([
-            'status' => 'Issued'
-        ]);
-        if($response){
-            toastr()->closeButton(true)->addSuccess('Stock has been issued successfully');
-            return redirect('addIssuance');
+        $stock = Stock::find($request->input('stock_id'));
+        if (!$stock || $stock->status !== Stock::STATUS_IN_STOCK) {
+            toastr()->error('This asset is not available in stock.');
+            return redirect()->back()->withInput();
         }
+
+        DB::transaction(function () use ($request, $stock) {
+            Issuance::where('stock_id', $stock->id)
+                ->whereNull('return_date')
+                ->update(['return_date' => Carbon::now()->toDateString()]);
+
+            Issuance::insert([
+                'stock_id' => $stock->id,
+                'employee_id' => $request->input('employee_id'),
+                'issuance_date' => $request->input('issuance_date'),
+                'location' => $request->input('location'),
+                'created_at' => Carbon::now(),
+            ]);
+
+            Stock::where('id', $stock->id)->update([
+                'status' => Stock::STATUS_ISSUED,
+            ]);
+        });
+
+        toastr()->closeButton(true)->addSuccess('Stock has been issued successfully');
+        return redirect('addIssuance');
     }
     function AddUser (Request $request){
         $request->validate([

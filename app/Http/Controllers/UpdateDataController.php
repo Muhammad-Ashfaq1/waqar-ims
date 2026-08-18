@@ -47,6 +47,12 @@ class UpdateDataController extends Controller
         $stock->status = $status;
         $stock->save();
 
+        if ($status === Stock::STATUS_IN_STOCK) {
+            Issuance::where('stock_id', $stock->id)
+                ->whereNull('return_date')
+                ->update(['return_date' => now()->toDateString()]);
+        }
+
         toastr()->closeButton(true)->addSuccess('Stock has been updated');
         return redirect('stocklist');
     }
@@ -66,12 +72,17 @@ class UpdateDataController extends Controller
         $issuance = Issuance::find($id);
         $issuance->employee_id = $empID;
         $issuance->location = $location;
-        $issuance->save();
-        if($status == 'In Stock'){
-        Stock::where('id', $stockID)->update([
-            'status' => 'In Stock'
-        ]);
-    }
+
+        if ($status == Stock::STATUS_IN_STOCK) {
+            $issuance->return_date = $request->input('return_date') ?: now()->toDateString();
+            $issuance->save();
+            Stock::where('id', $stockID)->update([
+                'status' => Stock::STATUS_IN_STOCK
+            ]);
+        } else {
+            $issuance->save();
+        }
+
         toastr()->closeButton(true)->addSuccess('Issuance record has been updated');
         return redirect('issuance');
     }

@@ -30,6 +30,7 @@ Route::controller(FetchDataController::class)->group(function(){
     Route::get('assetTypeInfo', 'FetchAssetList')->middleware(Login::class);
     Route::get('addIssuance', 'AssetListIssuance')->middleware(Login::class);
     Route::get('issuance', 'IssuanceList')->middleware(Login::class);
+    Route::get('issuance-history', 'IssuanceHistory')->middleware(Login::class);
     Route::get('userlist', 'UserList')->middleware(Login::class);
 });
 

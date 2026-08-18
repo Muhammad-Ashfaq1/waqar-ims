@@ -26,7 +26,7 @@
         <div class="col-md-12 col-sm-12 col-xs-12">
           <div class="x_panel">
             <div class="x_title">
-              <h2>Stock List</h2>
+              <h2>Issued Stock</h2>
               <ul class="nav navbar-right panel_toolbox">
                 <span class="input-group-btn">
                     <a href="{{url('addIssuance')}}" class="btn btn-primary"><span style="color: white;">Add New</span></a>
@@ -36,7 +36,6 @@
               <div class="clearfix"></div>
             </div>
             <div class="x_content">
-
               <table id="datatable-buttons" class="table table-striped table-bordered">
                 <thead>
                   <tr>
@@ -47,6 +46,7 @@
                     <th>Asset Type</th>
                     <th>Model</th>
                     <th>Serial No.</th>
+                    <th>Issue Date</th>
                     <th>Status</th>
                     <th>Location</th>
                     <th>Action</th>
@@ -66,6 +66,7 @@
                     <td>{{$data->getStock->getAsset['type']}}</td>
                     <td>{{$data->getStock['model']}}</td>
                     <td>{{$data->getStock['serial_no']}}</td>
+                    <td>{{ optional($data->issuance_date)->format('d-M-Y') }}</td>
                     <td>{{$data->getStock['status']}}</td>
                     <td>{{$data->location}}</td>
                     <td><a href="{{route('editIssuance', $data->id)}}" class="btn btn-app" style="padding: 5px 5px; min-width: 39px; height: 31px;">

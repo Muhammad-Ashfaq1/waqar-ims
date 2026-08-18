@@ -15,4 +15,5 @@ class Stock extends Model
 
 
     const STATUS_IN_STOCK = 'In Stock';
+    const STATUS_ISSUED = 'Issued';
 }

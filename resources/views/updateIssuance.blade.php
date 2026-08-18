@@ -75,10 +75,17 @@
                     <label class="control-label col-md-3 col-sm-3 col-xs-12" >Status <span class="required">*</span>
                     </label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
-                      <select class="form-control" name="status" >
+                      <select class="form-control" name="status" id="issuance_status">
                           <option value="{{$issuanceID->GetStock['status']}}">{{$issuanceID->GetStock['status']}}</option>
                           <option value="In Stock">In Stock</option>
                       </select>
+                    </div>
+                  </div>
+                  <div class="form-group" id="return_date_group">
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12">Return Date
+                    </label>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                      <input type="date" class="form-control col-md-7 col-xs-12" name="return_date" value="{{ old('return_date', date('Y-m-d')) }}">
                     </div>
                   </div>
                 <div class="ln_solid"></div>
@@ -103,6 +110,17 @@
 <script>
   $(document).ready(function() {
     $('#select1').select2();
+
+    function toggleReturnDate() {
+      if ($('#issuance_status').val() === 'In Stock') {
+        $('#return_date_group').show();
+      } else {
+        $('#return_date_group').hide();
+      }
+    }
+
+    $('#issuance_status').on('change', toggleReturnDate);
+    toggleReturnDate();
 });
 </script>
 @endsection
