@@ -4,6 +4,38 @@
     <!-- top tiles -->
     <div class="row tile_count">
       <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
+        <span class="count_top"><i class="fa fa-cubes"></i> Total Assets</span>
+        <div class="count">{{ $totalStock }}</div>
+        <span class="count_bottom">All stock items</span>
+      </div>
+      <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
+        <span class="count_top"><i class="fa fa-archive"></i> In Stock</span>
+        <div class="count green">{{ $inStockCount }}</div>
+        <span class="count_bottom">Available in store</span>
+      </div>
+      <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
+        <span class="count_top"><i class="fa fa-share"></i> Issued</span>
+        <div class="count">{{ $issuedCount }}</div>
+        <span class="count_bottom">With employees</span>
+      </div>
+      <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
+        <span class="count_top"><i class="fa fa-wrench"></i> Repairable</span>
+        <div class="count green">{{ $repairableCount }}</div>
+        <span class="count_bottom">Under repair</span>
+      </div>
+      <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
+        <span class="count_top"><i class="fa fa-times-circle"></i> Dead</span>
+        <div class="count">{{ $deadCount }}</div>
+        <span class="count_bottom">Not usable</span>
+      </div>
+      <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
+        <span class="count_top"><i class="fa fa-ban"></i> Not Receivable</span>
+        <div class="count green">{{ $notReceivableCount }}</div>
+        <span class="count_bottom">Not received</span>
+      </div>
+    </div>
+    <div class="row tile_count">
+      <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
         <span class="count_top"><i class="fa fa-user"></i> Total Employees</span>
         <div class="count green">{{$employee}}</div>
         <span class="count_bottom"><i class="green">4% </i> Active Employee</span>

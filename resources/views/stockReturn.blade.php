@@ -7,32 +7,15 @@
         <div class="title_left">
           <h3>Lahore Waste Management Company</h3>
         </div>
-
-        <div class="title_right">
-          <div class="col-md-5 col-sm-5 col-xs-12 form-group pull-right top_search">
-            <div class="input-group">
-
-
-            </div>
-          </div>
-        </div>
       </div>
 
       <div class="clearfix"></div>
 
       <div class="row">
-
-
         <div class="col-md-12 col-sm-12 col-xs-12">
           <div class="x_panel">
             <div class="x_title">
-              <h2>Issued Stock</h2>
-              <ul class="nav navbar-right panel_toolbox">
-                <span class="input-group-btn">
-                    <a href="{{url('addIssuance')}}" class="btn btn-primary"><span style="color: white;">Add New</span></a>
-                  </span>
-
-              </ul>
+              <h2>Stock Return</h2>
               <div class="clearfix"></div>
             </div>
             <div class="x_content">
@@ -47,31 +30,28 @@
                     <th>Model</th>
                     <th>Serial No.</th>
                     <th>Issue Date</th>
-                    <th>Status</th>
                     <th>Location</th>
                     <th>Action</th>
-
                   </tr>
                 </thead>
-
-                @php $counter=1;
-                @endphp
+                @php $counter = 1; @endphp
                 <tbody>
                 @foreach ($issuancedata as $data)
                 <tr>
-                    <td>{{$counter++}}</td>
-                    <td>{{$data->getEmployee['emp_name']}}</td>
-                    <td>{{$data->getEmployee['designation']}}</td>
-                    <td>{{$data->getEmployee->getDepartment['dep_name']}}</td>
-                    <td>{{$data->getStock->getAsset['type']}}</td>
-                    <td>{{$data->getStock['model']}}</td>
-                    <td>{{$data->getStock['serial_no']}}</td>
+                    <td>{{ $counter++ }}</td>
+                    <td>{{ optional($data->getEmployee)->emp_name ?? '-' }}</td>
+                    <td>{{ optional($data->getEmployee)->designation ?? '-' }}</td>
+                    <td>{{ optional(optional($data->getEmployee)->getDepartment)->dep_name ?? '-' }}</td>
+                    <td>{{ optional(optional($data->getStock)->getAsset)->type ?? '-' }}</td>
+                    <td>{{ optional($data->getStock)->model ?? '-' }}</td>
+                    <td>{{ optional($data->getStock)->serial_no ?? '-' }}</td>
                     <td>{{ optional($data->issuance_date)->format('d-M-Y') }}</td>
-                    <td>{{$data->getStock['status']}}</td>
-                    <td>{{$data->location}}</td>
-                    <td><a href="{{route('editIssuance', $data->id)}}" class="btn btn-app" style="padding: 5px 5px; min-width: 39px; height: 31px;">
-                        <i class="fa fa-edit"></i>
-                    </a></td>
+                    <td>{{ $data->location ?: '-' }}</td>
+                    <td>
+                      <a href="{{ route('returnIssuance', $data->id) }}" class="btn btn-app" style="padding: 5px 5px; min-width: 39px; height: 31px;" title="Return to stock">
+                        <i class="fa fa-undo"></i>
+                      </a>
+                    </td>
                 </tr>
                 @endforeach
                 </tbody>
@@ -79,9 +59,6 @@
             </div>
           </div>
         </div>
-
-
-
       </div>
     </div>
   </div>

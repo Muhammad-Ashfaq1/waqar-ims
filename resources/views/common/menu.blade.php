@@ -17,6 +17,8 @@
             <li><a href="{{url('assetTypeInfo')}}">Asset Types</a></li>
             <li><a href="{{url('stocklist')}}">Stock</a></li>
             <li><a href="{{url('issuance')}}">Stock Issuance</a></li>
+            <li><a href="{{url('stock-return')}}">Stock Return</a></li>
+            <li><a href="{{url('issuance-history')}}">Issuance History</a></li>
           </ul>
     </div>
 

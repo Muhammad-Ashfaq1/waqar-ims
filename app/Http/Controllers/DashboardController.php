@@ -40,6 +40,12 @@ class DashboardController extends Controller
         $laptop_year3 = Stock::whereBetween('purchase_date', ['2019-01-01', '2021-12-31'])->where('asset_id','6')->count();
         $laptop_year4 = Stock::whereBetween('purchase_date', ['2022-01-01', '2023-12-31'])->where('asset_id','6')->count();
         $laptop_year5 = Stock::whereBetween('purchase_date', ['2024-01-01', '2024-12-31'])->where('asset_id','6')->count();
+        $totalStock = Stock::count();
+        $inStockCount = Stock::where('status', Stock::STATUS_IN_STOCK)->count();
+        $issuedCount = Stock::where('status', Stock::STATUS_ISSUED)->count();
+        $repairableCount = Stock::where('status', 'Repairable')->count();
+        $deadCount = Stock::where('status', 'Dead')->count();
+        $notReceivableCount = Stock::where('status', 'Not Receivable')->count();
         return view('dashboard', [
         'employee' => $employee,
         'laptop' => $laptop,
@@ -72,6 +78,12 @@ class DashboardController extends Controller
         'laptop_year3' => $laptop_year3,
         'laptop_year4' => $laptop_year4,
         'laptop_year5' => $laptop_year5,
+        'totalStock' => $totalStock,
+        'inStockCount' => $inStockCount,
+        'issuedCount' => $issuedCount,
+        'repairableCount' => $repairableCount,
+        'deadCount' => $deadCount,
+        'notReceivableCount' => $notReceivableCount,
 
     ]);
 

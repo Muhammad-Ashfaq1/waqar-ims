@@ -72,13 +72,10 @@
                     </div>
                   </div>
                   <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" >Status <span class="required">*</span>
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" >Status
                     </label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
-                      <select class="form-control" name="status" >
-                          <option value="{{$issuanceID->GetStock['status']}}">{{$issuanceID->GetStock['status']}}</option>
-                          <option value="In Stock">In Stock</option>
-                      </select>
+                      <input type="text" class="form-control" value="Issued" readonly>
                     </div>
                   </div>
                 <div class="ln_solid"></div>
