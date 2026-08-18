@@ -33,10 +33,15 @@
                 </p>
               <h1>Login Form</h1>
               <div>
-                <input type="text" class="form-control" placeholder="Email" name="email" />
+                <input type="text" class="form-control" placeholder="Email" name="email" value="{{ old('email') }}" />
               </div>
               <div>
                 <input type="password" class="form-control" placeholder="Password" name="password" />
+              </div>
+              <div class="checkbox" style="text-align:left;margin:10px 0 15px;">
+                <label>
+                  <input type="checkbox" name="remember" value="1" {{ old('remember') ? 'checked' : '' }}> Remember me
+                </label>
               </div>
               <div>
                 <button type="submit" class="btn btn-success">Login</button>
