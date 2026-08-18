@@ -23,7 +23,7 @@ class FetchDataController extends Controller
     // Fetching department data from database and passing it to the Employee Dropdown view
     function FetchDepartmentList() {
         $depList = DB::table('departments')->select()->get();
-        return view('addemployee', ['depdata' => $depList]);
+        return view('addEmployee', ['depdata' => $depList]);
     }
 
     // Fetching employee data from database and passing it to the employeeInfo view
