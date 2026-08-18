@@ -113,7 +113,7 @@
                 <div class="ln_solid"></div>
                 <div class="form-group">
                   <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
-                    <a href="{{url('')}}" class="btn btn-primary">Back</a>
+                    <a href="{{url('stocklist')}}" class="btn btn-primary">Back</a>
                     <button class="btn btn-danger" type="reset">Reset</button>
                     <button type="submit" class="btn btn-warning">Submit</button>
                   </div>

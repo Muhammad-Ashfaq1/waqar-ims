@@ -22,27 +22,26 @@ Route::controller(AddDataController::class)->group(function(){
 });
 
 Route::controller(FetchDataController::class)->group(function(){
-    Route::get('addEmployee', 'FetchDepartmentList');
-    Route::get('addStock', 'FetchAssetTypeList');
-    Route::get('stocklist', 'FetchStockList');
-    Route::get('departmentinfo', 'DepartmentList')->Middleware(Login::class);
-    Route::get('employeeinfo', 'EmployeeList')->Middleware(Login::class);
-    Route::get('assetTypeInfo', 'FetchAssetList')->Middleware(Login::class);
-    Route::get('addIssuance', 'AssetListIssuance')->Middleware(Login::class);
-    Route::get('issuance', 'IssuanceList')->Middleware(Login::class);
-    Route::get('userlist', 'UserList')->Middleware(Login::class);
+    Route::get('addEmployee', 'FetchDepartmentList')->middleware(Login::class);
+    Route::get('addStock', 'FetchAssetTypeList')->middleware(Login::class);
+    Route::get('stocklist', 'FetchStockList')->middleware(Login::class);
+    Route::get('departmentinfo', 'DepartmentList')->middleware(Login::class);
+    Route::get('employeeinfo', 'EmployeeList')->middleware(Login::class);
+    Route::get('assetTypeInfo', 'FetchAssetList')->middleware(Login::class);
+    Route::get('addIssuance', 'AssetListIssuance')->middleware(Login::class);
+    Route::get('issuance', 'IssuanceList')->middleware(Login::class);
+    Route::get('userlist', 'UserList')->middleware(Login::class);
 });
 
-Route::view('addAsset','addAssetType');
-Route::get('updateEmployee/{id}', [UpdateDataController::class, 'GetEmpID'])->name('editEmployee');
-Route::get('updateStock/{id}', [UpdateDataController::class, 'GetStockID'])->name('editSt');
-Route::get('updateIssuance/{id}', [UpdateDataController::class, 'GetIssuanceID'])->name('editIssuance');
+Route::view('addAsset','addAssetType')->middleware(Login::class);
+Route::get('updateEmployee/{id}', [UpdateDataController::class, 'GetEmpID'])->name('editEmployee')->middleware(Login::class);
+Route::get('updateStock/{id}', [UpdateDataController::class, 'GetStockID'])->name('editSt')->middleware(Login::class);
+Route::get('updateIssuance/{id}', [UpdateDataController::class, 'GetIssuanceID'])->name('editIssuance')->middleware(Login::class);
 Route::put('editEmployee/{id}', [UpdateDataController::class, 'UpdateEmployee'])->middleware(Login::class);
 Route::put('editData/{id}', [UpdateDataController::class, 'UpdateStock'])->middleware(Login::class);
 Route::put('editIssuance/{id}', [UpdateDataController::class, 'UpdateIssuance'])->middleware(Login::class);
-Route::view('addDep','addDepartment')->Middleware(Login::class);
-Route::view('dashboard','dashboard')->Middleware(Login::class);
-Route::view('add-user','addUser')->Middleware(Login::class);
+Route::view('addDep','addDepartment')->middleware(Login::class);
+Route::view('add-user','addUser')->middleware(Login::class);
 Route::post('authenticate', [LoginController::class, 'Authenticate']);
 Route::get('logout', [LoginController::class, 'Logout']);
 Route::get('dashboard', [DashboardController::class, 'DashboardValues'])->middleware(Login::class);
