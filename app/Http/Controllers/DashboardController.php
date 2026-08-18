@@ -2,14 +2,80 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Stock;
+use App\Models\Asset;
+use App\Models\Department;
 use App\Models\Employee;
+use App\Models\Issuance;
+use App\Models\Stock;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
     function DashboardValues(){
-        $employee = Employee::select()->count();
+        $employee = Employee::count();
+        $activeEmployees = Employee::where('status', 'Active')->count();
+        $departmentCount = Department::count();
+        $assetTypeCount = Asset::count();
+        $pendingReturns = Issuance::whereNull('return_date')->count();
+        $issuedThisMonth = Issuance::whereYear('issuance_date', now()->year)
+            ->whereMonth('issuance_date', now()->month)
+            ->count();
+        $returnedThisMonth = Issuance::whereNotNull('return_date')
+            ->whereYear('return_date', now()->year)
+            ->whereMonth('return_date', now()->month)
+            ->count();
+        $expiredCount = Stock::whereNotNull('expiry_date')
+            ->whereDate('expiry_date', '<', now()->toDateString())
+            ->count();
+        $expiringSoonCount = Stock::whereNotNull('expiry_date')
+            ->whereDate('expiry_date', '>=', now()->toDateString())
+            ->whereDate('expiry_date', '<=', now()->addDays(90)->toDateString())
+            ->count();
+
+        $stockByType = DB::table('stocks')
+            ->join('assets', 'assets.id', '=', 'stocks.asset_id')
+            ->select(
+                'assets.type',
+                DB::raw('COUNT(*) as total'),
+                DB::raw("SUM(CASE WHEN stocks.status = 'In Stock' THEN 1 ELSE 0 END) as in_stock"),
+                DB::raw("SUM(CASE WHEN stocks.status = 'Issued' THEN 1 ELSE 0 END) as issued")
+            )
+            ->groupBy('assets.type')
+            ->orderBy('assets.type')
+            ->get();
+
+        $issuedByDepartment = DB::table('issuances')
+            ->join('employees', 'employees.id', '=', 'issuances.employee_id')
+            ->leftJoin('departments', 'departments.id', '=', 'employees.department_id')
+            ->whereNull('issuances.return_date')
+            ->select(
+                DB::raw("COALESCE(departments.dep_name, 'Unassigned') as dep_name"),
+                DB::raw('COUNT(*) as total')
+            )
+            ->groupBy('departments.dep_name')
+            ->orderByDesc('total')
+            ->limit(10)
+            ->get();
+
+        $recentIssuances = Issuance::with('getStock.getAsset', 'getEmployee.getDepartment')
+            ->orderByDesc('issuance_date')
+            ->orderByDesc('id')
+            ->limit(8)
+            ->get();
+
+        $recentReturns = Issuance::with('getStock.getAsset', 'getEmployee.getDepartment')
+            ->whereNotNull('return_date')
+            ->orderByDesc('return_date')
+            ->orderByDesc('id')
+            ->limit(8)
+            ->get();
+
+        $longestHeld = Issuance::with('getStock.getAsset', 'getEmployee.getDepartment')
+            ->whereNull('return_date')
+            ->orderBy('issuance_date')
+            ->orderBy('id')
+            ->limit(8)
+            ->get();
         $laptop = Stock::where('asset_id','6')->count();
         $desktop = Stock::where('asset_id','3')->count();
         $printer = Stock::where('asset_id','8')->count();
@@ -84,6 +150,19 @@ class DashboardController extends Controller
         'repairableCount' => $repairableCount,
         'deadCount' => $deadCount,
         'notReceivableCount' => $notReceivableCount,
+        'activeEmployees' => $activeEmployees,
+        'departmentCount' => $departmentCount,
+        'assetTypeCount' => $assetTypeCount,
+        'pendingReturns' => $pendingReturns,
+        'issuedThisMonth' => $issuedThisMonth,
+        'returnedThisMonth' => $returnedThisMonth,
+        'expiredCount' => $expiredCount,
+        'expiringSoonCount' => $expiringSoonCount,
+        'stockByType' => $stockByType,
+        'issuedByDepartment' => $issuedByDepartment,
+        'recentIssuances' => $recentIssuances,
+        'recentReturns' => $recentReturns,
+        'longestHeld' => $longestHeld,
 
     ]);
 

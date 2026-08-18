@@ -148,7 +148,7 @@
                     <td>{{ optional($data->getStock)->serial_no ?? '-' }}</td>
                     <td>{{ optional($data->issuance_date)->format('d-M-Y') }}</td>
                     <td>{{ optional($data->return_date)->format('d-M-Y') ?: '-' }}</td>
-                    <td>{{ $data->days_held }}</td>
+                    <td>{{ $data->held_for }}</td>
                     <td>{{ $data->location ?: '-' }}</td>
                     <td>{{ $data->history_status }}</td>
                 </tr>

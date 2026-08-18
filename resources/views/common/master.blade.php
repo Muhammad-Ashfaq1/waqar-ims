@@ -24,6 +24,7 @@
 
     <!-- Custom Theme Style -->
     <link href="/css/custom.min.css" rel="stylesheet">
+    @stack('styles')
     <script src="/js/jquery.js"></script>
   </head>
 
