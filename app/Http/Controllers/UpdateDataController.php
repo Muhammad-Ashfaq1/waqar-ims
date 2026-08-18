@@ -87,4 +87,46 @@ class UpdateDataController extends Controller
         return redirect('issuance');
     }
 
+    public function GetReturnID($id){
+        $issuance = Issuance::with('GetStock.GetAsset', 'GetEmployee.GetDepartment')->find($id);
+
+        if (! $issuance || $issuance->return_date) {
+            toastr()->error('This asset is already returned to stock.');
+            return redirect('stock-return');
+        }
+
+        return view('returnIssuance', ['issuanceID' => $issuance]);
+    }
+
+    public function ReturnIssuance(Request $request, $id){
+        $request->validate([
+            'return_date' => 'required|date',
+        ], [
+            'return_date.required' => 'Return date is required',
+            'return_date.date' => 'Must be a valid date',
+        ]);
+
+        $issuance = Issuance::find($id);
+
+        if (! $issuance || $issuance->return_date) {
+            toastr()->error('This asset is already returned to stock.');
+            return redirect('stock-return');
+        }
+
+        if ($issuance->issuance_date && $request->input('return_date') < $issuance->issuance_date->format('Y-m-d')) {
+            toastr()->error('Return date cannot be before issue date.');
+            return redirect()->back()->withInput();
+        }
+
+        $issuance->return_date = $request->input('return_date');
+        $issuance->save();
+
+        Stock::where('id', $issuance->stock_id)->update([
+            'status' => Stock::STATUS_IN_STOCK,
+        ]);
+
+        toastr()->closeButton(true)->addSuccess('Stock has been returned successfully');
+        return redirect('stock-return');
+    }
+
 }

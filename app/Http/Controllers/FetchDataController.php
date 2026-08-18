@@ -67,6 +67,15 @@ class FetchDataController extends Controller
         return view('issuanceList', ['issuancedata' => $issuances]);
     }
 
+    function ReturnList() {
+        $issuances = Issuance::with('getStock.getAsset', 'getEmployee.getDepartment')
+            ->whereNull('return_date')
+            ->orderByDesc('issuance_date')
+            ->orderByDesc('id')
+            ->get();
+        return view('stockReturn', ['issuancedata' => $issuances]);
+    }
+
     function IssuanceHistory(Request $request) {
         $query = Issuance::with('getStock.getAsset', 'getEmployee.getDepartment')
             ->orderByDesc('issuance_date')
