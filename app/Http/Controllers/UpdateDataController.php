@@ -64,24 +64,10 @@ class UpdateDataController extends Controller
     }
     //this function update issuance data.
     public function UpdateIssuance(Request $request, $id){
-        $empID = $request->input('employee_id');
-        $location = $request->input('location');
-        $status = $request->input('status');
-        $stockID = $request->input('stock_id');
-
         $issuance = Issuance::find($id);
-        $issuance->employee_id = $empID;
-        $issuance->location = $location;
-
-        if ($status == Stock::STATUS_IN_STOCK) {
-            $issuance->return_date = $request->input('return_date') ?: now()->toDateString();
-            $issuance->save();
-            Stock::where('id', $stockID)->update([
-                'status' => Stock::STATUS_IN_STOCK
-            ]);
-        } else {
-            $issuance->save();
-        }
+        $issuance->employee_id = $request->input('employee_id');
+        $issuance->location = $request->input('location');
+        $issuance->save();
 
         toastr()->closeButton(true)->addSuccess('Issuance record has been updated');
         return redirect('issuance');
