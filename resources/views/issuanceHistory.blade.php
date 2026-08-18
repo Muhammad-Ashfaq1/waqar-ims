@@ -47,11 +47,26 @@
                   <div class="col-md-4 col-sm-4 col-xs-12">
                     <div class="form-group">
                       <label>Asset Type</label>
-                      <select class="form-control history-select" name="asset_id">
-                        <option value="">All Assets</option>
+                      <select class="form-control history-select" name="asset_id" id="history-asset-type">
+                        <option value="">All Types</option>
                         @foreach ($assets as $asset)
                           <option value="{{ $asset->id }}" {{ (string) request('asset_id') === (string) $asset->id ? 'selected' : '' }}>
                             {{ $asset->type }}
+                          </option>
+                        @endforeach
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-4 col-sm-4 col-xs-12">
+                    <div class="form-group">
+                      <label>Specific Asset (Serial)</label>
+                      <select class="form-control history-select" name="stock_id" id="history-stock">
+                        <option value="">All Serials</option>
+                        @foreach ($stocks as $stock)
+                          <option value="{{ $stock->id }}"
+                                  data-asset-id="{{ $stock->asset_id }}"
+                                  {{ (string) request('stock_id') === (string) $stock->id ? 'selected' : '' }}>
+                            {{ optional($stock->getAsset)->type ?? 'Asset' }} | {{ $stock->model ?: '-' }} | {{ $stock->serial_no }}
                           </option>
                         @endforeach
                       </select>
@@ -95,6 +110,12 @@
                 Total: <strong>{{ $history->count() }}</strong>
                 &nbsp;|&nbsp; Currently Issued: <strong>{{ $issuedCount }}</strong>
                 &nbsp;|&nbsp; Returned: <strong>{{ $returnedCount }}</strong>
+                @if ($selectedStock)
+                  <br>
+                  Assignment trail for
+                  <strong>{{ optional($selectedStock->getAsset)->type ?? 'Asset' }} | {{ $selectedStock->serial_no }}</strong>
+                  (oldest to newest)
+                @endif
               </p>
 
               <table id="datatable-buttons" class="table table-striped table-bordered">
@@ -106,6 +127,7 @@
                     <th>Department</th>
                     <th>Asset Type</th>
                     <th>Model</th>
+                    <th>Serial No.</th>
                     <th>Issue Date</th>
                     <th>Return Date</th>
                     <th>Days Held</th>
@@ -123,6 +145,7 @@
                     <td>{{ optional(optional($data->getEmployee)->getDepartment)->dep_name ?? '-' }}</td>
                     <td>{{ optional(optional($data->getStock)->getAsset)->type ?? '-' }}</td>
                     <td>{{ optional($data->getStock)->model ?? '-' }}</td>
+                    <td>{{ optional($data->getStock)->serial_no ?? '-' }}</td>
                     <td>{{ optional($data->issuance_date)->format('d-M-Y') }}</td>
                     <td>{{ optional($data->return_date)->format('d-M-Y') ?: '-' }}</td>
                     <td>{{ $data->days_held }}</td>
@@ -141,7 +164,39 @@
   </div>
 <script>
   $(document).ready(function() {
-    $('.history-select').select2({ width: '100%' });
+    function stockMatchesType(optionEl) {
+      var assetId = $('#history-asset-type').val();
+      if (!assetId || !optionEl || !optionEl.value) {
+        return true;
+      }
+      return String($(optionEl).data('asset-id')) === String(assetId);
+    }
+
+    $('.history-select').not('#history-stock').select2({ width: '100%' });
+    $('#history-stock').select2({
+      width: '100%',
+      matcher: function(params, data) {
+        if (!stockMatchesType(data.element)) {
+          return null;
+        }
+        if ($.trim(params.term) === '') {
+          return data;
+        }
+        var term = params.term.toLowerCase();
+        var text = (data.text || '').toLowerCase();
+        return text.indexOf(term) > -1 ? data : null;
+      }
+    });
+
+    $('#history-asset-type').on('change', function() {
+      var $stock = $('#history-stock');
+      var selected = $stock.find('option:selected').get(0);
+      if (selected && !stockMatchesType(selected)) {
+        $stock.val('').trigger('change');
+      } else {
+        $stock.trigger('change.select2');
+      }
+    });
   });
 </script>
 @endsection

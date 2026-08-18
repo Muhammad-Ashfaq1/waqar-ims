@@ -10,7 +10,7 @@ use App\Http\Controllers\UpdateDataController;
 
 Route::get('/', function () {
     return view('welcome');
-})->name('login');
+})->name('login')->middleware('guest');
 
 Route::controller(AddDataController::class)->group(function(){
     Route::post('addDepartment', 'AddDepartment')->Middleware(Login::class);
@@ -46,7 +46,7 @@ Route::put('editData/{id}', [UpdateDataController::class, 'UpdateStock'])->middl
 Route::put('editIssuance/{id}', [UpdateDataController::class, 'UpdateIssuance'])->middleware(Login::class);
 Route::view('addDep','addDepartment')->middleware(Login::class);
 Route::view('add-user','addUser')->middleware(Login::class);
-Route::post('authenticate', [LoginController::class, 'Authenticate']);
-Route::get('logout', [LoginController::class, 'Logout']);
+Route::post('authenticate', [LoginController::class, 'Authenticate'])->middleware('guest');
+Route::post('logout', [LoginController::class, 'Logout'])->middleware(Login::class);
 Route::get('dashboard', [DashboardController::class, 'DashboardValues'])->middleware(Login::class);
 

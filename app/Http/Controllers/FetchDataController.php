@@ -77,14 +77,14 @@ class FetchDataController extends Controller
     }
 
     function IssuanceHistory(Request $request) {
-        $query = Issuance::with('getStock.getAsset', 'getEmployee.getDepartment')
-            ->orderByDesc('issuance_date')
-            ->orderByDesc('id');
+        $query = Issuance::with('getStock.getAsset', 'getEmployee.getDepartment');
 
         if ($request->filled('employee_id')) {
             $query->where('employee_id', $request->employee_id);
         }
-        if ($request->filled('asset_id')) {
+        if ($request->filled('stock_id')) {
+            $query->where('stock_id', $request->stock_id);
+        } elseif ($request->filled('asset_id')) {
             $query->whereHas('getStock', function ($stockQuery) use ($request) {
                 $stockQuery->where('asset_id', $request->asset_id);
             });
@@ -101,12 +101,23 @@ class FetchDataController extends Controller
             $query->whereNotNull('return_date');
         }
 
+        if ($request->filled('stock_id')) {
+            $query->orderBy('issuance_date')->orderBy('id');
+        } else {
+            $query->orderByDesc('issuance_date')->orderByDesc('id');
+        }
+
         $history = $query->get();
+        $selectedStock = $request->filled('stock_id')
+            ? Stock::with('getAsset')->find($request->stock_id)
+            : null;
 
         return view('issuanceHistory', [
             'history' => $history,
             'employees' => Employee::with('GetDepartment')->orderBy('emp_name')->get(),
             'assets' => Asset::orderBy('type')->get(),
+            'stocks' => Stock::with('getAsset')->orderBy('serial_no')->get(),
+            'selectedStock' => $selectedStock,
             'issuedCount' => $history->whereNull('return_date')->count(),
             'returnedCount' => $history->whereNotNull('return_date')->count(),
         ]);

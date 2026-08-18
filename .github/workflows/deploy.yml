@@ -101,6 +101,7 @@ jobs:
           chmod -R ug+rwx bootstrap/cache storage
           rm -f bootstrap/cache/packages.php bootstrap/cache/services.php
           php artisan package:discover --ansi
+          php artisan migrate --force
           php artisan optimize:clear
           EOF
 

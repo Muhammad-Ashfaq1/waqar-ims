@@ -6,6 +6,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>MIS Inventory</title>
 
@@ -32,7 +33,7 @@
         <div class="col-md-3 left_col">
           <div class="left_col scroll-view">
             <div class="navbar nav_title" style="border: 0;">
-               <a href="" class="site_title"><i class="fa fa-desktop"></i> <span>MIS Inventory</span></a>
+               <a href="{{ url('dashboard') }}" class="site_title"><i class="fa fa-desktop"></i> <span>MIS Inventory</span></a>
             </div>
 
             <div class="clearfix"></div>
@@ -93,6 +94,7 @@
 
     <!-- Custom Theme Scripts -->
     <script src="/js/custom.min.js"></script>
+    @stack('scripts')
 
   </body>
 </html>

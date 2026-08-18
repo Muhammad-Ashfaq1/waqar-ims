@@ -48,7 +48,15 @@
                     <td>{{ optional($data->issuance_date)->format('d-M-Y') }}</td>
                     <td>{{ $data->location ?: '-' }}</td>
                     <td>
-                      <a href="{{ route('returnIssuance', $data->id) }}" class="btn btn-app" style="padding: 5px 5px; min-width: 39px; height: 31px;" title="Return to stock">
+                      <a href="{{ route('returnIssuance', $data->id) }}"
+                         class="btn btn-app js-return-asset"
+                         style="padding: 5px 5px; min-width: 39px; height: 31px;"
+                         title="Return to stock"
+                         data-url="{{ url('returnIssuance/'.$data->id) }}"
+                         data-employee="{{ optional($data->getEmployee)->emp_name ?? '-' }}"
+                         data-asset="{{ optional(optional($data->getStock)->getAsset)->type ?? '-' }} {{ optional($data->getStock)->model }}"
+                         data-serial="{{ optional($data->getStock)->serial_no ?? '-' }}"
+                         data-issue-date="{{ optional($data->issuance_date)->format('Y-m-d') }}">
                         <i class="fa fa-undo"></i>
                       </a>
                     </td>
@@ -63,3 +71,17 @@
     </div>
   </div>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{ asset('js/stock-return-confirm.js') }}"></script>
+<style>
+  .return-confirm-popup { font-size: 15px; }
+  .return-confirm-details { text-align: left; }
+  .return-confirm-details p { margin: 0 0 8px; }
+  .return-confirm-details label { display: block; margin-top: 12px; font-weight: 600; }
+  .return-confirm-popup .swal2-input { margin: 8px 0 0; width: 100%; height: 38px; }
+  .return-confirm-popup .swal2-actions { gap: 8px; }
+  .return-confirm-popup .btn { margin: 0 4px; min-width: 120px; }
+</style>
+@endpush

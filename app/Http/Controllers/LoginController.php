@@ -10,6 +10,10 @@ class LoginController extends Controller
 {
     public function Authenticate(Request $request)
     {
+        if (Auth::check()) {
+            return redirect('dashboard');
+        }
+
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required|min:6',
@@ -27,7 +31,7 @@ class LoginController extends Controller
             $request->session()->regenerate();
             toastr()->closeButton(true)->addSuccess('Welcome to Inventory Management System');
 
-            return redirect('dashboard');
+            return redirect()->intended('dashboard');
         }
 
         toastr()->error('Email or Password is incorrect.');
