@@ -1,0 +1,106 @@
+name: Deploy Laravel Application
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+
+      - name: Verify PHP Version
+        run: echo "PHP version $(php -v)"
+
+      - name: Install Composer 2
+        run: |
+          curl -sS https://getcomposer.org/installer | php -- --2
+          sudo mv composer.phar /usr/local/bin/composer
+          composer --version
+
+      - name: Install Laravel Dependencies
+        run: |
+          composer install --no-dev --optimize-autoloader
+
+      - name: Install sshpass
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y sshpass
+
+      # Password auth (matches Termius).
+      # Use SSHPASS env + sshpass -e so $, !, * in the password are not mangled by the shell.
+      - name: Test SSH Connection
+        env:
+          SSHPASS: ${{ secrets.ELWMC_SSH }}
+        run: |
+          if [ -z "$SSHPASS" ]; then
+            echo "ELWMC_SSH secret is empty or missing"
+            exit 1
+          fi
+
+          # Trim accidental trailing newline/spaces from the GitHub secret
+          SSHPASS="$(printf '%s' "$SSHPASS" | tr -d '\r\n')"
+          export SSHPASS
+
+          echo "Testing SSH login to Hostinger..."
+          sshpass -e ssh -o StrictHostKeyChecking=no \
+            -o PreferredAuthentications=password \
+            -o PubkeyAuthentication=no \
+            -o NumberOfPasswordPrompts=1 \
+            -p 65002 \
+            u617995438@89.117.27.62 'echo SSH_OK && whoami'
+
+      # IMPORTANT: never use rsync --delete here.
+      # Without --delete, server-only files (uploads, .env, etc.) are never removed.
+      - name: Deploy to Hostinger
+        env:
+          SSHPASS: ${{ secrets.ELWMC_SSH }}
+        run: |
+          SSHPASS="$(printf '%s' "$SSHPASS" | tr -d '\r\n')"
+          export SSHPASS
+
+          echo "Deploying files to Hostinger..."
+          sshpass -e rsync -avz \
+            -e "ssh -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o PubkeyAuthentication=no -o NumberOfPasswordPrompts=1 -p 65002" \
+            --exclude '.git/' \
+            --exclude '.github/' \
+            --exclude 'node_modules/' \
+            --exclude '.env' \
+            --exclude '.env.*' \
+            --exclude 'storage/' \
+            --exclude 'bootstrap/cache/' \
+            --exclude 'public/storage' \
+            ./ u617995438@89.117.27.62:/home/u617995438/domains/elwmc.com/public_html/inventory/
+          echo "Deployed files to Hostinger"
+
+      - name: Run Laravel Commands
+        env:
+          SSHPASS: ${{ secrets.ELWMC_SSH }}
+        run: |
+          SSHPASS="$(printf '%s' "$SSHPASS" | tr -d '\r\n')"
+          export SSHPASS
+
+          sshpass -e ssh -o StrictHostKeyChecking=no \
+            -o PreferredAuthentications=password \
+            -o PubkeyAuthentication=no \
+            -o NumberOfPasswordPrompts=1 \
+            -p 65002 \
+            u617995438@89.117.27.62 << 'EOF'
+          cd /home/u617995438/domains/elwmc.com/public_html/inventory/
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+          php artisan optimize:clear
+          EOF
+
+      - name: Completion Message
+        run: echo "Laravel application deployed successfully!"
