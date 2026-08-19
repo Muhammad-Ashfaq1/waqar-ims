@@ -7,6 +7,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Middleware\Login;
 use App\Http\Controllers\UpdateDataController;
+use App\Http\Controllers\ProfileController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -49,4 +50,8 @@ Route::view('add-user','addUser')->middleware(Login::class);
 Route::post('authenticate', [LoginController::class, 'Authenticate'])->middleware('guest');
 Route::post('logout', [LoginController::class, 'Logout'])->middleware(Login::class);
 Route::get('dashboard', [DashboardController::class, 'DashboardValues'])->middleware(Login::class);
+
+Route::get('profile', [ProfileController::class, 'show'])->name('profile')->middleware(Login::class);
+Route::put('profile', [ProfileController::class, 'update'])->middleware(Login::class);
+Route::put('profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password')->middleware(Login::class);
 

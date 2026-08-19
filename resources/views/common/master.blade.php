@@ -24,6 +24,8 @@
 
     <!-- Custom Theme Style -->
     <link href="/css/custom.min.css" rel="stylesheet">
+    <!-- IMS Profile/Navbar styles -->
+    <link href="/css/ims-profile.css" rel="stylesheet">
     @stack('styles')
     <script src="/js/jquery.js"></script>
   </head>
@@ -43,11 +45,11 @@
             <!-- menu profile quick info -->
             <div class="profile clearfix">
               <div class="profile_pic">
-                <img src="{{asset('img/img.jpg')}}" alt="..." class="img-circle profile_img">
+                <img src="{{ auth()->check() ? auth()->user()->profile_image_url : asset('img/img.jpg') }}" alt="..." class="img-circle profile_img">
               </div>
               <div class="profile_info">
                 <span>Welcome,</span>
-                <h2>System Admin</h2>
+                <h2>{{ auth()->check() ? auth()->user()->name : 'System Admin' }}</h2>
               </div>
             </div>
             <!-- /menu profile quick info -->
