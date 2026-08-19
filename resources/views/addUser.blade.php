@@ -24,26 +24,39 @@
               <form id="demo-form2" class="form-horizontal form-label-left" method="POST" action="{{url('add-user')}}">
                 @csrf
                 <div class="form-group">
-                  <label class="control-label col-md-3 col-sm-3 col-xs-12" >Name <span class="required">*</span>
+                  <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">First Name <span class="required">*</span>
                   </label>
                   <div class="col-md-6 col-sm-6 col-xs-12">
-                    <input type="text" id="first-name" class="form-control col-md-7 col-xs-12" name="name" value="{{old('name')}}">
-                    <span class="form-control-feedback right">@error('name') {{$message}} @enderror</span>
+                    <input type="text" id="first-name" class="form-control col-md-7 col-xs-12" name="first_name" value="{{old('first_name')}}" placeholder="Enter first name">
+                    <span class="form-control-feedback right">@error('first_name') {{$message}} @enderror</span>
                   </div>
                 </div>
                 <div class="form-group">
-                  <label class="control-label col-md-3 col-sm-3 col-xs-12" >Email <span class="required">*</span>
+                  <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">Last Name
                   </label>
                   <div class="col-md-6 col-sm-6 col-xs-12">
-                    <input type="text" id="first-name" class="form-control col-md-7 col-xs-12" name="email" value="{{old('email')}}">
+                    <input type="text" id="last-name" class="form-control col-md-7 col-xs-12" name="last_name" value="{{old('last_name')}}" placeholder="Enter last name (optional)">
+                    <span class="form-control-feedback right">@error('last_name') {{$message}} @enderror</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="control-label col-md-3 col-sm-3 col-xs-12" for="user-email">Email <span class="required">*</span>
+                  </label>
+                  <div class="col-md-6 col-sm-6 col-xs-12">
+                    <input type="email" id="user-email" class="form-control col-md-7 col-xs-12" name="email" value="{{old('email')}}" placeholder="Enter email address">
                     <span class="form-control-feedback right">@error('email') {{$message}} @enderror</span>
                   </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" >Password <span class="required">*</span>
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="user-password">Password <span class="required">*</span>
                     </label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
-                      <input type="text" id="first-name" class="form-control col-md-7 col-xs-12" name="password" value="{{old('password')}}">
+                      <div style="position: relative;">
+                        <input type="password" id="user-password" class="form-control col-md-7 col-xs-12" name="password" style="padding-right: 35px;" placeholder="Enter password">
+                        <span class="toggle-password" style="position: absolute; right: 15px; top: 9px; cursor: pointer; color: #73879C; z-index: 10; font-size: 14px;">
+                          <i class="fa fa-eye"></i>
+                        </span>
+                      </div>
                       <span class="form-control-feedback right">@error('password') {{$message}} @enderror</span>
                     </div>
                   </div>
@@ -67,3 +80,21 @@
     </div>
   </div>
 @endsection
+
+@push('scripts')
+<script>
+$(document).ready(function() {
+    $('.toggle-password').on('click', function() {
+        var input = $('#user-password');
+        var icon = $(this).find('i');
+        if (input.attr('type') === 'password') {
+            input.attr('type', 'text');
+            icon.removeClass('fa-eye').addClass('fa-eye-slash');
+        } else {
+            input.attr('type', 'password');
+            icon.removeClass('fa-eye-slash').addClass('fa-eye');
+        }
+    });
+});
+</script>
+@endpush

@@ -165,28 +165,35 @@ class AddDataController extends Controller
     }
     function AddUser (Request $request){
         $request->validate([
-            'name' => 'required | string',
-            'email' => 'required | email',
-            'password' => 'required | min:6'
+            'first_name' => 'required|string|max:100',
+            'last_name'  => 'nullable|string|max:100',
+            'email'      => 'required|email|unique:users,email',
+            'password'   => 'required|min:8'
         ], [
-            'name.required' => 'Name is required',
-            'email.required' => 'Email is required',
-            'password.required' => 'Password is required',
-            'password.min' => 'Password must be at least 6 characters long'
+            'first_name.required' => 'First name is required',
+            'email.required'      => 'Email is required',
+            'email.unique'        => 'This email is already registered',
+            'password.required'   => 'Password is required',
+            'password.min'        => 'Password must be at least 8 characters long'
         ]);
+
+        $firstName = trim($request->input('first_name'));
+        $lastName  = trim($request->input('last_name', ''));
+        $fullName  = trim($firstName . ' ' . $lastName);
+
         $insertUser = [
-            'name' => $request->input('name'),
-            'email' => $request->input('email'),
-            'password' => Hash::make($request->input('password')),
+            'name'       => $fullName,
+            'first_name' => $firstName,
+            'last_name'  => $lastName ?: null,
+            'email'      => $request->input('email'),
+            'password'   => Hash::make($request->input('password')),
             'created_at' => Carbon::now()
         ];
 
-            $response = User::insert($insertUser);
-            if($response){
-                toastr()->closeButton(true)->addSuccess('User has been added successfully');
-                return redirect('add-user');
-            }
-
-
+        $response = User::insert($insertUser);
+        if($response){
+            toastr()->closeButton(true)->addSuccess('User has been added successfully');
+            return redirect('add-user');
+        }
     }
 }
