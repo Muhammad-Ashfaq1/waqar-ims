@@ -24,6 +24,10 @@
 
     <!-- Custom Theme Style -->
     <link href="/css/custom.min.css" rel="stylesheet">
+    <!-- IMS Profile/Navbar styles -->
+    <link href="/css/ims-profile.css" rel="stylesheet">
+    <!-- ApexCharts -->
+    <link href="https://cdn.jsdelivr.net/npm/apexcharts@3/dist/apexcharts.min.css" rel="stylesheet">
     @stack('styles')
     <script src="/js/jquery.js"></script>
   </head>
@@ -43,11 +47,11 @@
             <!-- menu profile quick info -->
             <div class="profile clearfix">
               <div class="profile_pic">
-                <img src="{{asset('img/img.jpg')}}" alt="..." class="img-circle profile_img">
+                <img src="{{ auth()->check() ? auth()->user()->profile_image_url : asset('img/img.jpg') }}" alt="..." class="img-circle profile_img">
               </div>
               <div class="profile_info">
                 <span>Welcome,</span>
-                <h2>System Admin</h2>
+                <h2>{{ auth()->check() ? auth()->user()->name : 'System Admin' }}</h2>
               </div>
             </div>
             <!-- /menu profile quick info -->
@@ -77,24 +81,26 @@
     </div>
 
     <!-- jQuery -->
-    <script src="/js/jquery.min.js"></script>
+    <script src="{{ asset('js/jquery.min.js') }}"></script>
     <!-- Bootstrap -->
-    <script src="/js/bootstrap.min.js"></script>
+    <script src="{{ asset('js/bootstrap.min.js') }}"></script>
 
     <!-- Datatables -->
-    <script src="/js/jquery.dataTables.min.js"></script>
-    <script src="/js/dataTables.bootstrap.min.js"></script>
-    <script src="/js/dataTables.buttons.min.js"></script>
-    <script src="/js/buttons.bootstrap.min.js"></script>
-    <script src="/js/buttons.flash.min.js"></script>
-    <script src="/js/buttons.html5.min.js"></script>
-    <script src="/js/buttons.print.min.js"></script>
-    <script src="/js/select2.min.js"></script>
-    <script src="/js/chart.min.js"></script>
-    <script src="/js/progress.min.js"></script>
+    <script src="{{ asset('js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('js/dataTables.bootstrap.min.js') }}"></script>
+    <script src="{{ asset('js/dataTables.buttons.min.js') }}"></script>
+    <script src="{{ asset('js/buttons.bootstrap.min.js') }}"></script>
+    <script src="{{ asset('js/buttons.flash.min.js') }}"></script>
+    <script src="{{ asset('js/buttons.html5.min.js') }}"></script>
+    <script src="{{ asset('js/buttons.print.min.js') }}"></script>
+    <script src="{{ asset('js/select2.min.js') }}"></script>
+    <script src="{{ asset('js/chart.min.js') }}"></script>
+    <script src="{{ asset('js/progress.min.js') }}"></script>
 
     <!-- Custom Theme Scripts -->
-    <script src="/js/custom.min.js"></script>
+    <script src="{{ asset('js/custom.min.js') }}"></script>
+    <!-- ApexCharts -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts@3/dist/apexcharts.min.js"></script>
     @stack('scripts')
 
   </body>

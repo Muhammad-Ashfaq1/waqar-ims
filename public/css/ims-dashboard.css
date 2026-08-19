@@ -4,41 +4,41 @@
  */
 
 .ims-dash {
-    padding-bottom: 24px;
+    padding-bottom: 12px;
 }
 
 .ims-dash-page {
-    margin-bottom: 18px;
+    margin-bottom: 10px;
 }
 
 .ims-dash-page h3 {
     margin: 0;
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 700;
     color: var(--ims-heading);
 }
 
 .ims-dash-page p {
-    margin: 6px 0 0;
+    margin: 4px 0 0;
     color: var(--ims-muted);
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 500;
 }
 
 .ims-dash-row {
     display: flex;
     flex-wrap: wrap;
-    margin-left: -8px;
-    margin-right: -8px;
+    margin-left: -6px;
+    margin-right: -6px;
 }
 
 .ims-dash-row > [class*="col-"] {
     float: none;
     display: flex;
     flex-direction: column;
-    padding-left: 8px;
-    padding-right: 8px;
-    margin-bottom: 16px;
+    padding-left: 6px;
+    padding-right: 6px;
+    margin-bottom: 10px;
 }
 
 .ims-dash-card-fill {
@@ -116,29 +116,29 @@
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    gap: 12px;
-    padding: 1.1rem 1.25rem 0.35rem;
+    gap: 8px;
+    padding: 0.75rem 1rem 0.2rem;
 }
 
 .ims-dash-panel-head h5 {
     margin: 0;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 700;
     color: var(--ims-heading);
 }
 
 .ims-dash-panel-head small {
     display: block;
-    margin-top: 4px;
+    margin-top: 2px;
     color: var(--ims-muted);
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 500;
 }
 
 .ims-dash-panel-body {
     position: relative;
     z-index: 1;
-    padding: 0.5rem 1.25rem 1.15rem;
+    padding: 0.35rem 1rem 0.85rem;
 }
 
 .ims-dash-table {
@@ -149,7 +149,8 @@
 .ims-dash-table > thead > tr > th,
 .ims-dash-table > tbody > tr > td {
     border-color: rgba(47, 43, 61, 0.08);
-    font-size: 14px;
+    font-size: 13px;
+    padding: 6px 10px;
     vertical-align: middle;
 }
 
@@ -264,3 +265,70 @@
     font-size: 13px;
     color: var(--ims-muted);
 }
+
+/* ── KPI card lift transition ── */
+.ims-dash .ims-glass-card {
+    transition: box-shadow 0.22s ease, border-color 0.22s ease,
+                background-color 0.22s ease, transform 0.22s ease;
+}
+
+/* ── Status badges ── */
+.ims-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}
+.ims-badge-issued   { background: rgba(var(--ims-primary-rgb), 0.12); color: rgb(var(--ims-primary-rgb)); }
+.ims-badge-instock  { background: rgba(var(--ims-success-rgb), 0.12); color: rgb(var(--ims-success-rgb)); }
+.ims-badge-returned { background: rgba(var(--ims-info-rgb),    0.12); color: rgb(var(--ims-info-rgb));    }
+.ims-badge-warning  { background: rgba(var(--ims-warning-rgb), 0.12); color: rgb(var(--ims-warning-rgb)); }
+.ims-badge-danger   { background: rgba(var(--ims-danger-rgb),  0.12); color: rgb(var(--ims-danger-rgb));  }
+
+/* ── Trend chip on KPI cards ── */
+.ims-stat-trend {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-top: 2px;
+}
+.ims-stat-trend.up   { color: rgb(var(--ims-success-rgb)); }
+.ims-stat-trend.down { color: rgb(var(--ims-danger-rgb));  }
+.ims-stat-trend.flat { color: var(--ims-muted); }
+
+/* ── Count-up value pulse ── */
+@keyframes ims-pop {
+    0%   { opacity: 0; transform: scale(0.85); }
+    60%  { transform: scale(1.04); }
+    100% { opacity: 1; transform: scale(1); }
+}
+.ims-stat-value { animation: ims-pop 0.45s cubic-bezier(.22,.68,0,1.2) both; }
+
+/* ── Section divider label ── */
+.ims-dash-section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ims-muted);
+    margin: 4px 0 6px 8px;
+}
+
+/* ── ApexCharts Circular Legend Markers ── */
+.apexcharts-legend-marker,
+.apexcharts-legend-series .apexcharts-legend-marker,
+span.apexcharts-legend-marker,
+svg.apexcharts-legend-marker {
+    border-radius: 50% !important;
+    rx: 50% !important;
+    ry: 50% !important;
+}
+

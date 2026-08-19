@@ -70,6 +70,16 @@ class DashboardController extends Controller
             ->limit(8)
             ->get();
 
+        // Monthly issuances & returns — last 6 months
+        $monthlyData = collect(range(5, 0))->map(function ($i) {
+            $date = now()->subMonths($i);
+            return [
+                'month'    => $date->format('M Y'),
+                'issued'   => Issuance::whereYear('issuance_date', $date->year)->whereMonth('issuance_date', $date->month)->count(),
+                'returned' => Issuance::whereNotNull('return_date')->whereYear('return_date', $date->year)->whereMonth('return_date', $date->month)->count(),
+            ];
+        });
+
         $longestHeld = Issuance::with('getStock.getAsset', 'getEmployee.getDepartment')
             ->whereNull('return_date')
             ->orderBy('issuance_date')
@@ -107,6 +117,22 @@ class DashboardController extends Controller
         $laptop_year4 = Stock::whereBetween('purchase_date', ['2022-01-01', '2023-12-31'])->where('asset_id','6')->count();
         $laptop_year5 = Stock::whereBetween('purchase_date', ['2024-01-01', '2024-12-31'])->where('asset_id','6')->count();
         $totalStock = Stock::count();
+        $monthlyTrends = [
+            'labels' => [],
+            'issued' => [],
+            'returned' => []
+        ];
+        for ($i = 5; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $monthlyTrends['labels'][] = $date->format('M Y');
+            $monthlyTrends['issued'][] = Issuance::whereYear('issuance_date', $date->year)
+                ->whereMonth('issuance_date', $date->month)
+                ->count();
+            $monthlyTrends['returned'][] = Issuance::whereNotNull('return_date')
+                ->whereYear('return_date', $date->year)
+                ->whereMonth('return_date', $date->month)
+                ->count();
+        }
         $inStockCount = Stock::where('status', Stock::STATUS_IN_STOCK)->count();
         $issuedCount = Stock::where('status', Stock::STATUS_ISSUED)->count();
         $repairableCount = Stock::where('status', 'Repairable')->count();
@@ -162,8 +188,9 @@ class DashboardController extends Controller
         'issuedByDepartment' => $issuedByDepartment,
         'recentIssuances' => $recentIssuances,
         'recentReturns' => $recentReturns,
-        'longestHeld' => $longestHeld,
-
+        'longestHeld'  => $longestHeld,
+        'monthlyData'  => $monthlyData,
+        'monthlyTrends' => $monthlyTrends,
     ]);
 
 
