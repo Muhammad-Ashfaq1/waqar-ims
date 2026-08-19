@@ -48,10 +48,9 @@ class ProfileController extends Controller
     {
         $user = auth()->user()->fresh();
 
-        // Check current password FIRST before any other validation
         if (! Hash::check($request->current_password, $user->password)) {
             toastr()->closeButton(true)->addError('Current password is incorrect.');
-            return redirect()->to(route('profile') . '?tab=password');
+            return redirect()->back()->withInput();
         }
 
         $request->validate([

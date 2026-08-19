@@ -138,7 +138,7 @@
                   <label class="as-label">New Password <span class="as-required">*</span></label>
                   <div class="as-input-group" id="grp-new">
                     <input type="password" id="f-new" name="new_password"
-                           class="as-input" placeholder="Min 8 characters"
+                           class="as-input" placeholder="Enter new password"
                            required minlength="8" autocomplete="new-password">
                     <button type="button" class="as-pw-toggle" data-for="f-new">
                       <svg id="eye-new" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -299,9 +299,63 @@
     fCur.addEventListener('input',chkCur);
     fNew.addEventListener('input',function(){chkNew();if(fCon.value)chkCon();});
     fCon.addEventListener('input',chkCon);
-    pwForm.addEventListener('submit',function(e){
-      var ok=chkCur()&chkNew()&chkCon();
-      if(!ok){e.preventDefault();(pwForm.querySelector('.is-invalid')||fCur).focus();}
+    pwForm.addEventListener('submit', function(e){
+      e.preventDefault();
+      var ok = chkCur() & chkNew() & chkCon();
+      if (!ok) {
+        (pwForm.querySelector('.is-invalid') || fCur).focus();
+        return;
+      }
+
+      var btn = pwForm.querySelector('button[type="submit"]');
+      var origHTML = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Changing...';
+
+      var formData = new FormData(pwForm);
+
+      fetch(pwForm.action, {
+        method: 'POST',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'Accept': 'application/json'
+        },
+        body: formData
+      })
+      .then(function(res){
+        return res.json().then(function(data){ return { status: res.status, data: data }; });
+      })
+      .then(function(resObj){
+        btn.disabled = false;
+        btn.innerHTML = origHTML;
+        var data = resObj.data;
+
+        if (resObj.status === 200 && data.success) {
+          if (typeof toastr !== 'undefined' && toastr.success) { toastr.success(data.message || 'Password changed successfully.'); }
+          else if (typeof flasher !== 'undefined') { flasher.success(data.message || 'Password changed successfully.'); }
+          pwForm.reset();
+          setErr(errCur, grpCur, fCur, '');
+          setErr(errNew, grpNew, fNew, '');
+          setErr(errCon, grpCon, fCon, '');
+        } else {
+          var msg = (data && data.message) ? data.message : 'Current password is incorrect.';
+          if (typeof toastr !== 'undefined' && toastr.error) { toastr.error(msg); }
+          else if (typeof flasher !== 'undefined') { flasher.error(msg); }
+          else { alert(msg); }
+          setErr(errCur, grpCur, fCur, msg);
+          fCur.focus();
+        }
+      })
+      .catch(function(){
+        btn.disabled = false;
+        btn.innerHTML = origHTML;
+        var msg = 'Current password is incorrect.';
+        if (typeof toastr !== 'undefined' && toastr.error) { toastr.error(msg); }
+        else if (typeof flasher !== 'undefined') { flasher.error(msg); }
+        else { alert(msg); }
+        setErr(errCur, grpCur, fCur, msg);
+        fCur.focus();
+      });
     });
   }
 })();
