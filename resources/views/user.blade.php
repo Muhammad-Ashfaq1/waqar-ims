@@ -38,9 +38,7 @@
                     <th>Sr.</th>
                     <th>Name</th>
                     <th>Email</th>
-                    <th>Password</th>
                     <th>Created Date</th>
-                    <th>Action</th>
 
                   </tr>
                 </thead>
@@ -54,11 +52,7 @@
                     <td>{{++$count}}</td>
                     <td>{{$data->name}}</td>
                     <td>{{$data->email}}</td>
-                    <td>{{$data->password}}</td>
                     <td>{{$data->created_at}}</td>
-                    <td><a class="btn btn-app" style="padding: 5px 5px; min-width: 39px; height: 31px;">
-                        <i class="fa fa-edit"></i>
-                      </a></td>
 
                   </tr>
                   @endforeach
