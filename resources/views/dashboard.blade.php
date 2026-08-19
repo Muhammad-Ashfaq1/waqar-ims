@@ -3,6 +3,17 @@
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/ims-glass.css') }}">
 <link rel="stylesheet" href="{{ asset('css/ims-dashboard.css') }}">
+<style>
+  .apexcharts-legend-marker,
+  .apexcharts-legend-text,
+  .apexcharts-legend-series .apexcharts-legend-marker,
+  span.apexcharts-legend-marker,
+  svg.apexcharts-legend-marker {
+      border-radius: 50% !important;
+      rx: 50% !important;
+      ry: 50% !important;
+  }
+</style>
 @endpush
 
 @section('content')
@@ -117,6 +128,139 @@
     @endforeach
   </div>
 
+  <div class="ims-dash-section-label">Analytics &amp; Charts</div>
+  {{-- ── CHARTS ROW 1: Issuance Trend + Stock Status Donut ── --}}
+  <div class="row ims-dash-row">
+    <div class="col-md-7 col-sm-12 col-xs-12">
+      <div class="ims-glass-card ims-tone-primary ims-dash-card-fill">
+        <div class="ims-dash-panel-head">
+          <div>
+            <h5>Issuance Trend</h5>
+            <small>Monthly issuances &amp; returns — last 6 months</small>
+          </div>
+        </div>
+        <div class="ims-dash-panel-body" style="padding:4px 0 0;">
+          <div id="chartMonthly" style="min-height:260px;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-5 col-sm-12 col-xs-12">
+      <div class="ims-glass-card ims-tone-info ims-dash-card-fill">
+        <div class="ims-dash-panel-head">
+          <div>
+            <h5>Stock Status</h5>
+            <small>Current breakdown</small>
+          </div>
+        </div>
+        <div class="ims-dash-panel-body" style="padding:4px 0 0;">
+          <div id="chartStatus" style="min-height:260px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {{-- ── CHARTS ROW 2: Stock Allocation by Asset Category (Light Glass Radial Donut Cards Layout) ── --}}
+  <div class="row ims-dash-row">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+      <div class="ims-glass-card ims-tone-primary ims-dash-card-fill" style="padding:16px 20px 20px;">
+        
+        {{-- Header matching project panel head style --}}
+        <div class="ims-dash-panel-head" style="padding:0 0 16px 0;">
+          <div>
+            <h5 style="display:flex; align-items:center; gap:8px;">
+              <i class="fa fa-bar-chart" style="color:rgb(var(--ims-primary-rgb));"></i> Stock Allocation by Asset Category
+            </h5>
+            <small>Live distribution of total stock, available store items, and employee holdings</small>
+          </div>
+        </div>
+
+        {{-- 3 Summary Mini-Cards --}}
+        @php
+          $inStockPct = $totalStock > 0 ? round(($inStockCount / $totalStock) * 100, 2) : 0;
+          $issuedPct  = $totalStock > 0 ? round(($issuedCount  / $totalStock) * 100, 2) : 0;
+        @endphp
+        <div style="display:flex; gap:14px; margin-bottom:20px; flex-wrap:wrap;">
+          {{-- Card 1: Total Stock --}}
+          <div style="flex:1; min-width:180px; background:#f5f5ff; border:1px solid #e0e0ff; border-radius:10px; padding:14px 16px; display:flex; align-items:center; gap:14px;">
+            <div style="width:42px; height:42px; border-radius:10px; background:#ede9fe; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <i class="fa fa-cubes" style="color:#7367F0; font-size:18px;"></i>
+            </div>
+            <div>
+              <div style="font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ims-muted);">TOTAL STOCK</div>
+              <div style="font-size:26px; font-weight:700; color:var(--ims-heading); line-height:1.1; margin:2px 0;">{{ number_format($totalStock) }}</div>
+              <div style="font-size:11px; color:var(--ims-muted);">All Assets</div>
+            </div>
+          </div>
+
+          {{-- Card 2: In Store (Available) --}}
+          <div style="flex:1; min-width:180px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; padding:14px 16px; display:flex; align-items:center; gap:14px;">
+            <div style="width:42px; height:42px; border-radius:10px; background:#dcfce7; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <i class="fa fa-archive" style="color:#28C76F; font-size:18px;"></i>
+            </div>
+            <div>
+              <div style="font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ims-muted);">IN STORE (AVAILABLE)</div>
+              <div style="font-size:26px; font-weight:700; color:var(--ims-heading); line-height:1.1; margin:2px 0;">{{ number_format($inStockCount) }}</div>
+              <div style="font-size:11px; color:var(--ims-muted);">{{ $inStockPct }}% of total</div>
+            </div>
+          </div>
+
+          {{-- Card 3: Currently Issued --}}
+          <div style="flex:1; min-width:180px; background:#fff7ed; border:1px solid #fed7aa; border-radius:10px; padding:14px 16px; display:flex; align-items:center; gap:14px;">
+            <div style="width:42px; height:42px; border-radius:10px; background:#ffedd5; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <i class="fa fa-user" style="color:#FF9F43; font-size:18px;"></i>
+            </div>
+            <div>
+              <div style="font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ims-muted);">CURRENTLY ISSUED</div>
+              <div style="font-size:26px; font-weight:700; color:var(--ims-heading); line-height:1.1; margin:2px 0;">{{ number_format($issuedCount) }}</div>
+              <div style="font-size:11px; color:var(--ims-muted);">{{ $issuedPct }}% of total</div>
+            </div>
+          </div>
+        </div>
+
+        {{-- Radial Donut Cards Grid --}}
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap:12px;">
+          @foreach($stockByType as $index => $row)
+            <div style="background:#ffffff; border:1px solid rgba(47,43,61,0.12); border-radius:12px; padding:14px 8px 10px; display:flex; flex-direction:column; align-items:center; justify-content:space-between; box-shadow:0 2px 6px rgba(47,43,61,0.04); transition: transform 0.2s, box-shadow 0.2s;">
+              <div style="font-size:12px; font-weight:700; color:var(--ims-heading); text-align:center; width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="{{ $row->type }}">
+                {{ $row->type }}
+              </div>
+
+              {{-- Donut canvas container --}}
+              <div style="position:relative; width:105px; height:105px; display:flex; align-items:center; justify-content:center; margin:6px 0;">
+                <div id="catDonut_{{ $index }}" style="width:105px; height:105px;"></div>
+              </div>
+
+              {{-- Stats under donut --}}
+              <div style="text-align:center; width:100%; font-size:11px; font-weight:700;">
+                <div style="color:#28C76F; line-height:1.2;">{{ number_format($row->in_stock) }}</div>
+                <div style="color:#FF9F43; line-height:1.2; margin-top:2px;">{{ number_format($row->issued) }}</div>
+              </div>
+            </div>
+          @endforeach
+        </div>
+
+        {{-- Bottom Legend Pill --}}
+        <div style="display:flex; justify-content:center; margin-top:20px;">
+          <div style="background:#ffffff; border:1px solid rgba(47,43,61,0.12); border-radius:30px; padding:8px 24px; display:inline-flex; gap:24px; align-items:center; flex-wrap:wrap; justify-content:center; box-shadow:0 2px 6px rgba(47,43,61,0.03);">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="width:10px; height:10px; border-radius:50%; background:#7367f0; display:inline-block;"></span>
+              <span style="color:var(--ims-muted); font-size:12px; font-weight:600;">Total Stock</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="width:10px; height:10px; border-radius:50%; background:#28C76F; display:inline-block;"></span>
+              <span style="color:var(--ims-muted); font-size:12px; font-weight:600;">In Store (Available)</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="width:10px; height:10px; border-radius:50%; background:#FF9F43; display:inline-block;"></span>
+              <span style="color:var(--ims-muted); font-size:12px; font-weight:600;">Currently Issued</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <div class="row ims-dash-row">
     <div class="col-md-6 col-sm-12 col-xs-12">
       <div class="ims-glass-card ims-tone-primary ims-dash-card-fill">
@@ -218,7 +362,13 @@
                   </a>
                 </td>
                 <td>{{ optional($row->issuance_date)->format('d-M-Y') }}</td>
-                <td>{{ $row->history_status }}</td>
+                <td>
+                  @if($row->history_status === 'Issued')
+                    <span class="ims-badge ims-badge-issued">● Issued</span>
+                  @else
+                    <span class="ims-badge ims-badge-returned">✓ Returned</span>
+                  @endif
+                </td>
               </tr>
               @empty
               <tr><td colspan="5">No issuance records yet.</td></tr>
@@ -401,3 +551,140 @@
   </div>
 </div>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/apexcharts@3/dist/apexcharts.min.js"></script>
+<script>
+$(document).ready(function () {
+  if (typeof ApexCharts === 'undefined') {
+    console.error('ApexCharts library failed to load.');
+    return;
+  }
+
+  /* ── Count-up animation ── */
+  function countUp(el, target, duration) {
+    var start = 0, step = target / (duration / 16);
+    var timer = setInterval(function () {
+      start += step;
+      if (start >= target) { start = target; clearInterval(timer); }
+      el.textContent = Math.round(start).toLocaleString();
+    }, 16);
+  }
+  document.querySelectorAll('.ims-stat-value').forEach(function (el) {
+    var raw = el.textContent.replace(/,/g, '').trim();
+    var n = parseInt(raw, 10);
+    if (!isNaN(n) && n > 0) {
+      el.textContent = '0';
+      setTimeout(function () { countUp(el, n, 900); }, 200);
+    }
+  });
+
+  // ── 1. Line — Issuance Trend ──
+  try {
+    var elMonthly = document.getElementById('chartMonthly');
+    if (elMonthly) {
+      var monthly = {!! $monthlyData->toJson() !!};
+      new ApexCharts(elMonthly, {
+        chart: { type: 'area', height: 280, toolbar: { show: false }, zoom: { enabled: false }, fontFamily: 'inherit' },
+        series: [
+          { name: 'Issued',   data: monthly.map(function(r){ return r.issued; }) },
+          { name: 'Returned', data: monthly.map(function(r){ return r.returned; }) }
+        ],
+        xaxis: { categories: monthly.map(function(r){ return r.month; }), axisBorder: { show: false }, axisTicks: { show: false } },
+        yaxis: { labels: { formatter: function(v){ return Math.round(v); } }, min: 0 },
+        colors: ['#7367F0','#28C76F'],
+        fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.35, opacityTo: 0.05 } },
+        stroke: { curve: 'smooth', width: 2 },
+        markers: { size: 4 },
+        dataLabels: { enabled: false },
+        legend: { position: 'top', horizontalAlign: 'right', markers: { width: 10, height: 10, radius: 12 } },
+        grid: { borderColor: '#f1f1f1', strokeDashArray: 4 },
+        tooltip: { shared: true, intersect: false }
+      }).render();
+    }
+  } catch(e) { console.error('chartMonthly error:', e); }
+
+  // ── 2. Donut — Stock Status ──
+  try {
+    var elStatus = document.getElementById('chartStatus');
+    if (elStatus) {
+      new ApexCharts(elStatus, {
+        chart: { type: 'donut', height: 280, fontFamily: 'inherit' },
+        series: [{{ (int)$inStockCount }}, {{ (int)$issuedCount }}, {{ (int)$repairableCount }}, {{ (int)$deadCount }}, {{ (int)$notReceivableCount }}],
+        labels: ['In Stock','Issued','Repairable','Dead','Not Receivable'],
+        colors: ['#10B981','#7367F0','#FF9F43','#EA5455','#A8AAAE'],
+        plotOptions: { pie: { donut: { size: '65%', labels: {
+          show: true,
+          total: { show: true, label: 'Total', formatter: function(w){ return w.globals.seriesTotals.reduce(function(a,b){ return a+b; },0); } }
+        } } } },
+        dataLabels: { enabled: false },
+        legend: { position: 'bottom', fontSize: '12px', markers: { width: 10, height: 10, radius: 12 } },
+        tooltip: { y: { formatter: function(v){ return v + ' items'; } } }
+      }).render();
+    }
+  } catch(e) { console.error('chartStatus error:', e); }
+
+  // ── 3. Category Radial Donut Charts ──
+  try {
+    var catItems = [
+      @foreach($stockByType as $index => $row)
+        {
+          id: 'catDonut_{{ $index }}',
+          total: {{ (int)$row->total }},
+          inStock: {{ (int)$row->in_stock }},
+          issued: {{ (int)$row->issued }}
+        }@if(!$loop->last),@endif
+      @endforeach
+    ];
+
+    catItems.forEach(function(item) {
+      var el = document.getElementById(item.id);
+      if (!el) return;
+
+      var series = (item.inStock === 0 && item.issued === 0) ? [1] : [item.inStock, item.issued];
+      var colors = (item.inStock === 0 && item.issued === 0) ? ['#e2e8f0'] : ['#28C76F', '#FF9F43'];
+
+      new ApexCharts(el, {
+        chart: {
+          type: 'donut',
+          height: 110,
+          width: 110,
+          sparkline: { enabled: true },
+          animations: { enabled: true, easing: 'easeinout', speed: 500 }
+        },
+        series: series,
+        colors: colors,
+        stroke: { width: 3, colors: ['#ffffff'] },
+        plotOptions: {
+          pie: {
+            donut: {
+              size: '72%',
+              background: 'transparent',
+              labels: {
+                show: true,
+                name: { show: false },
+                value: {
+                  show: true,
+                  fontSize: '17px',
+                  fontWeight: '700',
+                  color: '#1f1c2c',
+                  offsetY: 5,
+                  formatter: function() { return item.total; }
+                },
+                total: {
+                  show: true,
+                  label: '',
+                  color: '#1f1c2c',
+                  formatter: function() { return item.total; }
+                }
+              }
+            }
+          }
+        },
+        tooltip: { enabled: false }
+      }).render();
+    });
+  } catch(e) { console.error('catDonut error:', e); }
+});
+</script>
+@endpush
