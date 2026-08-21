@@ -261,7 +261,7 @@
     </div>
   </div>
 
-  <div class="row ims-dash-row">
+  <div class="row ims-dash-row ims-dash-row-equal">
     <div class="col-md-6 col-sm-12 col-xs-12">
       <div class="ims-glass-card ims-tone-primary ims-dash-card-fill">
         <div class="ims-dash-panel-head">
@@ -271,29 +271,31 @@
           </div>
           <a href="{{ url('stocklist') }}" class="ims-btn ims-btn-ghost">View stock</a>
         </div>
-        <div class="ims-dash-panel-body">
-          <table class="table ims-dash-table">
-            <thead>
-              <tr>
-                <th>Type</th>
-                <th>Total</th>
-                <th>In Stock</th>
-                <th>Issued</th>
-              </tr>
-            </thead>
-            <tbody>
-              @forelse ($stockByType as $row)
-              <tr>
-                <td>{{ $row->type }}</td>
-                <td>{{ $row->total }}</td>
-                <td>{{ $row->in_stock }}</td>
-                <td>{{ $row->issued }}</td>
-              </tr>
-              @empty
-              <tr><td colspan="4">No stock records yet.</td></tr>
-              @endforelse
-            </tbody>
-          </table>
+        <div class="ims-dash-panel-body ims-dash-panel-body-tight ims-dash-panel-grow">
+          <div class="ims-dash-table-scroll">
+            <table class="table ims-dash-table">
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Total</th>
+                  <th>In Stock</th>
+                  <th>Issued</th>
+                </tr>
+              </thead>
+              <tbody>
+                @forelse ($stockByType as $row)
+                <tr>
+                  <td>{{ $row->type }}</td>
+                  <td>{{ $row->total }}</td>
+                  <td>{{ $row->in_stock }}</td>
+                  <td>{{ $row->issued }}</td>
+                </tr>
+                @empty
+                <tr><td colspan="4">No stock records yet.</td></tr>
+                @endforelse
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -302,29 +304,37 @@
         <div class="ims-dash-panel-head">
           <div>
             <h5>Currently Issued by Department</h5>
-            <small>Open issuances still with staff</small>
+            <small>Laptops, desktops, printers &amp; scanners with staff</small>
           </div>
           <a href="{{ url('issuance') }}" class="ims-btn ims-btn-ghost">View issuance</a>
         </div>
-        <div class="ims-dash-panel-body">
-          <table class="table ims-dash-table">
-            <thead>
-              <tr>
-                <th>Department</th>
-                <th>Assets with staff</th>
-              </tr>
-            </thead>
-            <tbody>
-              @forelse ($issuedByDepartment as $row)
-              <tr>
-                <td>{{ $row->dep_name }}</td>
-                <td>{{ $row->total }}</td>
-              </tr>
-              @empty
-              <tr><td colspan="2">No assets currently issued.</td></tr>
-              @endforelse
-            </tbody>
-          </table>
+        <div class="ims-dash-panel-body ims-dash-panel-body-tight ims-dash-panel-grow">
+          <div class="ims-dash-table-scroll">
+            <table class="table ims-dash-table">
+              <thead>
+                <tr>
+                  <th>Department</th>
+                  <th>Laptops</th>
+                  <th>Desktops</th>
+                  <th>Printers</th>
+                  <th>Scanners</th>
+                </tr>
+              </thead>
+              <tbody>
+                @forelse ($issuedByDepartment as $row)
+                <tr>
+                  <td>{{ $row->dep_name }}</td>
+                  <td>{{ (int) $row->laptops }}</td>
+                  <td>{{ (int) $row->desktops }}</td>
+                  <td>{{ (int) $row->printers }}</td>
+                  <td>{{ (int) $row->scanners }}</td>
+                </tr>
+                @empty
+                <tr><td colspan="5">No assets currently issued.</td></tr>
+                @endforelse
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
