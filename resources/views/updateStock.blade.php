@@ -110,6 +110,20 @@
                     <span class="form-control-feedback right">@error('status') {{$message}} @enderror</span>
                   </div>
                 </div>
+                <div class="form-group">
+                  <label class="control-label col-md-3 col-sm-3 col-xs-12" for="stock-location">Location / Workshop</label>
+                  <div class="col-md-6 col-sm-6 col-xs-12">
+                    <select class="form-control" name="location_id" id="stock-location">
+                      <option value="">--Select--</option>
+                      @foreach ($locations as $location)
+                        <option value="{{ $location->id }}" {{ (string) old('location_id', $stockID->location_id) === (string) $location->id ? 'selected' : '' }}>
+                          {{ $location->name }} ({{ $location->type_label }})
+                        </option>
+                      @endforeach
+                    </select>
+                    <span class="form-control-feedback right">@error('location_id') {{$message}} @enderror</span>
+                  </div>
+                </div>
                 <div class="ln_solid"></div>
                 <div class="form-group">
                   <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">

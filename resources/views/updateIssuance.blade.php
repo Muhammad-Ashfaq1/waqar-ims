@@ -58,17 +58,15 @@
                     <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Location <span class="required">*</span>
                     </label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
-                      <select class="form-control" name="location" value="{{old('location')}}">
-                          <option value="{{$issuanceID->location}}">{{$issuanceID->location}}</option>
-                          <option value="Head Office">Head Office</option>
-                          <option value="Lakhodair Admin Block">Lakhodair Admin Block</option>
-                          <option value="Lakhodair Weighbridge">Lakhodair Weighbridge</option>
-                          <option value="Children Hospital Workshop">Children Hospital Workshop</option>
-                          <option value="Outfall Road Workshop North">Outfall Road Workshop North</option>
-                          <option value="Outfall Road Workshop South">Outfall Road Workshop South</option>
-                          <option value="Thokar Workshop">Thokar Workshop</option>
-
+                      <select class="form-control" name="location_id" id="issuance-location">
+                          <option value="">--Select--</option>
+                          @foreach ($locations as $location)
+                            <option value="{{ $location->id }}" {{ (string) old('location_id', $issuanceID->location_id) === (string) $location->id ? 'selected' : '' }}>
+                              {{ $location->name }} ({{ $location->type_label }})
+                            </option>
+                          @endforeach
                         </select>
+                        <span class="form-control-feedback right">@error('location_id') {{$message}} @enderror</span>
                     </div>
                   </div>
                   <div class="form-group">

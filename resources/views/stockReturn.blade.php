@@ -46,7 +46,7 @@
                     <td>{{ optional($data->getStock)->model ?? '-' }}</td>
                     <td>{{ optional($data->getStock)->serial_no ?? '-' }}</td>
                     <td>{{ optional($data->issuance_date)->format('d-M-Y') }}</td>
-                    <td>{{ $data->location ?: '-' }}</td>
+                    <td>{{ $data->location_display }}</td>
                     <td>
                       @if(auth()->user()?->canManageInventory())
                       <a href="{{ route('returnIssuance', $data->id) }}"

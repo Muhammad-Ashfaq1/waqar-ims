@@ -22,6 +22,22 @@ class Issuance extends Model
         return $this->belongsTo('App\Models\Employee', 'employee_id');
     }
 
+    public function assignedLocation()
+    {
+        return $this->belongsTo(Location::class, 'location_id');
+    }
+
+    public function getLocationDisplayAttribute(): string
+    {
+        if ($this->assignedLocation?->name) {
+            return $this->assignedLocation->name;
+        }
+
+        $legacy = trim((string) ($this->attributes['location'] ?? ''));
+
+        return $legacy !== '' ? $legacy : '-';
+    }
+
     public function getDaysHeldAttribute(): ?int
     {
         if (! $this->issuance_date) {

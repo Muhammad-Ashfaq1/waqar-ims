@@ -8,6 +8,7 @@ use App\Models\Department;
 use App\Models\Stock;
 use App\Models\Issuance;
 use App\Models\User;
+use App\Models\Location;
 use Illuminate\Support\Facades\Auth;
 use App\Enums\UserRole;
 use Illuminate\Validation\Rules\Enum;
@@ -40,15 +41,25 @@ class UpdateDataController extends Controller
     }
     //this function get ID of Stock.
     public function GetStockID ($id){
-        $stockID = Stock::with('GetAsset')->find($id);
-        return view('updateStock', ['stockID' => $stockID]);
+        $stockID = Stock::with(['GetAsset', 'location'])->find($id);
+        $locations = Location::active()->orderBy('name')->get();
+        return view('updateStock', ['stockID' => $stockID, 'locations' => $locations]);
     }
     //this function update stock data.
     public function UpdateStock(Request $request, $id){
+        $request->validate([
+            'status' => 'required',
+            'location_id' => 'nullable|exists:locations,id',
+        ], [
+            'status.required' => 'Status is required',
+            'location_id.exists' => 'Selected location is invalid',
+        ]);
+
         $status = $request->input('status');
 
         $stock = Stock::find($id);
         $stock->status = $status;
+        $stock->location_id = $request->input('location_id') ?: null;
         $stock->save();
 
         if ($status === Stock::STATUS_IN_STOCK) {
@@ -62,23 +73,53 @@ class UpdateDataController extends Controller
     }
     //this function get ID of Issuance.
     public function GetIssuanceID ($id){
-        $issueID = Issuance::with('GetStock.GetAsset', 'GetEmployee.GetDepartment')->find($id);
+        $issueID = Issuance::with('GetStock.GetAsset', 'GetEmployee.GetDepartment', 'assignedLocation')->find($id);
         $emp = Employee::with('GetDepartment')->get();
-        return view('updateIssuance', ['issuanceID' => $issueID, 'emp' => $emp]);
+        $locations = Location::active()->orderBy('name')->get();
+        return view('updateIssuance', [
+            'issuanceID' => $issueID,
+            'emp' => $emp,
+            'locations' => $locations,
+        ]);
     }
     //this function update issuance data.
     public function UpdateIssuance(Request $request, $id){
+        $request->validate([
+            'employee_id' => 'required',
+            'location_id' => 'required|exists:locations,id',
+        ], [
+            'employee_id.required' => 'Employee is required',
+            'location_id.required' => 'Location is required',
+            'location_id.exists' => 'Selected location is invalid',
+        ]);
+
+        $location = Location::find($request->input('location_id'));
+        if (! $location) {
+            toastr()->error('Selected location is invalid');
+            return redirect()->back()->withInput();
+        }
+
         $issuance = Issuance::find($id);
+        if (! $issuance) {
+            toastr()->error('Issuance record not found');
+            return redirect('issuance');
+        }
+
         $issuance->employee_id = $request->input('employee_id');
-        $issuance->location = $request->input('location');
+        $issuance->location_id = $location->id;
+        $issuance->location = $location->name;
         $issuance->save();
+
+        if ($issuance->stock_id) {
+            Stock::where('id', $issuance->stock_id)->update(['location_id' => $location->id]);
+        }
 
         toastr()->closeButton(true)->addSuccess('Issuance record has been updated');
         return redirect('issuance');
     }
 
     public function GetReturnID($id){
-        $issuance = Issuance::with('GetStock.GetAsset', 'GetEmployee.GetDepartment')->find($id);
+        $issuance = Issuance::with('GetStock.GetAsset', 'GetEmployee.GetDepartment', 'assignedLocation')->find($id);
 
         if (! $issuance || $issuance->return_date) {
             toastr()->error('This asset is already returned to stock.');

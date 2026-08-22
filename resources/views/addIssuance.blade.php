@@ -62,34 +62,15 @@
                     <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Location <span class="required">*</span>
                     </label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
-                      <select class="form-control" name="location" value="{{old('location')}}">
+                      <select class="form-control" name="location_id" id="issuance-location">
                           <option value="">--Select--</option>
-                          <option value="Head Office">Head Office</option>
-                          <option value="Lakhodair Admin Block">Lakhodair Admin Block</option>
-                          <option value="Lakhodair Weighbridge">Lakhodair Weighbridge</option>
-                          <option value="Children Hospital Workshop">Children Hospital Workshop</option>
-                          <option value="Outfall Road Workshop North">Outfall Road Workshop North</option>
-                          <option value="Outfall Road Workshop South">Outfall Road Vigilance Office/option>
-                          <option value="Outfall Road Workshop South">Outfall Road Workshop South</option>
-                          <option value="Thokar Workshop">Thokar Workshop</option>
-                          <option value="Vigilance Office">Vigilance Office</option>
-                          <option value="Saggian Yard">Saggian Yard</option>
-                          <option value="Badami Bagh Yard">Badami Bagh Yard</option>
-                          <option value="Mehmood Booti Yard">Mehmood Booti Yard</option>
-                          <option value="Salamatpura Yard">Salamatpura Yard</option>
-                          <option value="Jallo Mor Yard">Jallo Mor Yard</option>
-                          <option value="Barki Yard">Barki Yard</option>
-                          <option value="Southworkshop Fleet Office (Rizwan)">Southworkshop Fleet Office (Rizwan)</option>
-                          <option value="Bedian Yard">Bedian Yard</option>
-                          <option value="Sofiabad yard">Sofiabad yard</option>
-                          <option value="Childern Workshop Yard">Childern Workshop Yard</option>
-                          <option value="Thokar Yard">Thokar Yard</option>
-						  <option value="Thokar SBT Yard">Thokar SBT Yard</option>
-						  <option value="Raiwind AIT Yard">Raiwind AIT Yard</option>
-						  <option value="Chunge Yard">Chunge Yard</option>
-
+                          @foreach ($locations as $location)
+                            <option value="{{ $location->id }}" {{ (string) old('location_id') === (string) $location->id ? 'selected' : '' }}>
+                              {{ $location->name }} ({{ $location->type_label }})
+                            </option>
+                          @endforeach
                         </select>
-                        <span class="form-control-feedback right">@error('location') {{$message}} @enderror</span>
+                        <span class="form-control-feedback right">@error('location_id') {{$message}} @enderror</span>
                     </div>
                   </div>
                 <div class="ln_solid"></div>

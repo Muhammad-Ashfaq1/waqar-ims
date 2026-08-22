@@ -9,6 +9,7 @@ use App\Models\Asset;
 use App\Models\Stock;
 use App\Models\Issuance;
 use App\Models\User;
+use App\Models\Location;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -93,7 +94,8 @@ class AddDataController extends Controller
             'serial' =>'required | string',
             'purchase_date' =>'required | date',
             'expiry_date' =>'required | date',
-            'status' =>'required'
+            'status' =>'required',
+            'location_id' => 'nullable|exists:locations,id',
         ],[
             'assettype.required' => 'Asset Type is required',
            'model.required' => 'Model is required',
@@ -104,7 +106,8 @@ class AddDataController extends Controller
             'purchase_date.date' => 'Must be a valid date',
             'expiry_date.required' => 'Expiry Date is must',
             'expiry_date.date' => 'Must be a valid date',
-           'status.required' => 'Status is required'
+           'status.required' => 'Status is required',
+           'location_id.exists' => 'Selected location is invalid',
         ]);
         $insertStock = [
             'asset_id' => $request->input('assettype'),
@@ -117,6 +120,7 @@ class AddDataController extends Controller
             'purchase_date' => $request->input('purchase_date'),
             'expiry_date' => $request->input('expiry_date'),
             'status' => $request->input('status'),
+            'location_id' => $request->input('location_id') ?: null,
             'created_at' => Carbon::now()
         ];
         $response = Stock::insert($insertStock);
@@ -131,12 +135,13 @@ class AddDataController extends Controller
             'employee_id' =>'required',
             'stock_id' =>'required',
             'issuance_date' =>'required',
-            'location' => 'required'
+            'location_id' => 'required|exists:locations,id',
         ],[
             'employee_id.required' => 'Employee is required',
             'stock_id.required' => 'Stock is required',
             'issuance_date.required' => 'Date is required',
-            'location.required' => 'Location is required'
+            'location_id.required' => 'Location is required',
+            'location_id.exists' => 'Selected location is invalid',
         ]);
         $stock = Stock::find($request->input('stock_id'));
         if (!$stock || $stock->status !== Stock::STATUS_IN_STOCK) {
@@ -144,7 +149,13 @@ class AddDataController extends Controller
             return redirect()->back()->withInput();
         }
 
-        DB::transaction(function () use ($request, $stock) {
+        $location = Location::find($request->input('location_id'));
+        if (! $location) {
+            toastr()->error('Selected location is invalid');
+            return redirect()->back()->withInput();
+        }
+
+        DB::transaction(function () use ($request, $stock, $location) {
             Issuance::where('stock_id', $stock->id)
                 ->whereNull('return_date')
                 ->update(['return_date' => Carbon::now()->toDateString()]);
@@ -153,12 +164,14 @@ class AddDataController extends Controller
                 'stock_id' => $stock->id,
                 'employee_id' => $request->input('employee_id'),
                 'issuance_date' => $request->input('issuance_date'),
-                'location' => $request->input('location'),
+                'location_id' => $location->id,
+                'location' => $location->name,
                 'created_at' => Carbon::now(),
             ]);
 
             Stock::where('id', $stock->id)->update([
                 'status' => Stock::STATUS_ISSUED,
+                'location_id' => $location->id,
             ]);
         });
 
