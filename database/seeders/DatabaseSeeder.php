@@ -3,22 +3,25 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        User::query()->firstOrCreate(
+        $this->call(RolesAndPermissionsSeeder::class);
+
+        $admin = User::query()->firstOrCreate(
             ['email' => 'admin@ims.lwmc.com'],
             [
                 'name' => 'Admin',
                 'password' => 'password',
+                'is_active' => true,
             ]
         );
+
+        if ($admin->roles()->count() === 0) {
+            $admin->assignRole(\App\Enums\UserRole::SuperAdmin->value);
+        }
     }
 }

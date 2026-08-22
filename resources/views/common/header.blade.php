@@ -26,7 +26,7 @@
             </li>
             <li class="ims-dd-divider"></li>
             <li class="ims-dd-item">
-              <div class="ims-dd-role">Admin</div>
+              <div class="ims-dd-role">{{ $authUser ? $authUser->role_label : 'Admin' }}</div>
             </li>
             <li class="ims-dd-divider"></li>
             <li class="ims-dd-item">

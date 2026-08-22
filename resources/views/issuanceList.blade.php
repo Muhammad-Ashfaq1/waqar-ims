@@ -28,10 +28,11 @@
             <div class="x_title">
               <h2>Issued Stock</h2>
               <ul class="nav navbar-right panel_toolbox">
+                @if(auth()->user()?->canManageInventory())
                 <span class="input-group-btn">
                     <a href="{{url('addIssuance')}}" class="btn btn-primary"><span style="color: white;">Add New</span></a>
                   </span>
-
+                @endif
               </ul>
               <div class="clearfix"></div>
             </div>
@@ -69,9 +70,15 @@
                     <td>{{ optional($data->issuance_date)->format('d-M-Y') }}</td>
                     <td>{{$data->getStock['status']}}</td>
                     <td>{{$data->location}}</td>
-                    <td><a href="{{route('editIssuance', $data->id)}}" class="btn btn-app" style="padding: 5px 5px; min-width: 39px; height: 31px;">
+                    <td>
+                      @if(auth()->user()?->canManageInventory())
+                      <a href="{{route('editIssuance', $data->id)}}" class="btn btn-app" style="padding: 5px 5px; min-width: 39px; height: 31px;">
                         <i class="fa fa-edit"></i>
-                    </a></td>
+                      </a>
+                      @else
+                      —
+                      @endif
+                    </td>
                 </tr>
                 @endforeach
                 </tbody>

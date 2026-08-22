@@ -12,6 +12,8 @@ use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use App\Enums\UserRole;
+use Illuminate\Validation\Rules\Enum;
 
 
 
@@ -168,32 +170,35 @@ class AddDataController extends Controller
             'first_name' => 'required|string|max:100',
             'last_name'  => 'nullable|string|max:100',
             'email'      => 'required|email|unique:users,email',
-            'password'   => 'required|min:8'
+            'password'   => 'required|min:8',
+            'role'       => ['required', new Enum(UserRole::class)],
         ], [
             'first_name.required' => 'First name is required',
             'email.required'      => 'Email is required',
             'email.unique'        => 'This email is already registered',
             'password.required'   => 'Password is required',
-            'password.min'        => 'Password must be at least 8 characters long'
+            'password.min'        => 'Password must be at least 8 characters long',
+            'role.required'       => 'Role is required',
+            'role.in'             => 'Invalid role selected',
         ]);
 
         $firstName = trim($request->input('first_name'));
         $lastName  = trim($request->input('last_name', ''));
         $fullName  = trim($firstName . ' ' . $lastName);
 
-        $insertUser = [
+        $user = User::create([
             'name'       => $fullName,
             'first_name' => $firstName,
             'last_name'  => $lastName ?: null,
             'email'      => $request->input('email'),
-            'password'   => Hash::make($request->input('password')),
-            'created_at' => Carbon::now()
-        ];
+            'password'   => $request->input('password'),
+            'is_active'  => true,
+        ]);
 
-        $response = User::insert($insertUser);
-        if($response){
-            toastr()->closeButton(true)->addSuccess('User has been added successfully');
-            return redirect('add-user');
-        }
+        $user->assignRole($request->enum('role', UserRole::class)->value);
+
+        toastr()->closeButton(true)->addSuccess('User has been added successfully');
+
+        return redirect('userlist');
     }
 }

@@ -48,6 +48,7 @@
                     <td>{{ optional($data->issuance_date)->format('d-M-Y') }}</td>
                     <td>{{ $data->location ?: '-' }}</td>
                     <td>
+                      @if(auth()->user()?->canManageInventory())
                       <a href="{{ route('returnIssuance', $data->id) }}"
                          class="btn btn-app js-return-asset"
                          style="padding: 5px 5px; min-width: 39px; height: 31px;"
@@ -59,6 +60,9 @@
                          data-issue-date="{{ optional($data->issuance_date)->format('Y-m-d') }}">
                         <i class="fa fa-undo"></i>
                       </a>
+                      @else
+                      —
+                      @endif
                     </td>
                 </tr>
                 @endforeach

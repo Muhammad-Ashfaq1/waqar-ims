@@ -124,7 +124,7 @@ class FetchDataController extends Controller
     }
     // Fetching user data from database and passing it to the userList view  (Not in use)  -- This is for admin only to view all users.  Not for regular users.  --
     function UserList() {
-        $users = User::select()->get();
+        $users = User::with('roles')->get();
         return view('user', ['userdata' => $users]);
     }
 

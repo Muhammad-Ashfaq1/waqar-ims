@@ -27,9 +27,11 @@
             <div class="x_title">
               <h2>Employee Information</h2>
               <ul class="nav navbar-right panel_toolbox">
+                @if(auth()->user()?->canManageBaseData())
                 <span class="input-group-btn">
                     <a href="{{url('addEmployee')}}" class="btn btn-primary"><span style="color: white;">Add New</span></a>
                   </span>
+                @endif
               </ul>
               <div class="clearfix"></div>
             </div>
@@ -61,9 +63,15 @@
                     <td>{{$data->GetDepartment['dep_name']}}</td>
                     <td>{{$data->status}}</td>
                     <td>{{$data->type}}</td>
-                    <td><a href="{{route('editEmployee', $data->id)}}" class="btn btn-app" style="padding: 5px 5px; min-width: 39px; height: 31px;">
+                    <td>
+                      @if(auth()->user()?->canManageBaseData())
+                      <a href="{{route('editEmployee', $data->id)}}" class="btn btn-app" style="padding: 5px 5px; min-width: 39px; height: 31px;">
                         <i class="fa fa-edit"></i>
-                      </a></td>
+                      </a>
+                      @else
+                      —
+                      @endif
+                    </td>
 
                   </tr>
                   @endforeach

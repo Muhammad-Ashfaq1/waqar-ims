@@ -7,6 +7,10 @@ use App\Models\Employee;
 use App\Models\Department;
 use App\Models\Stock;
 use App\Models\Issuance;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use App\Enums\UserRole;
+use Illuminate\Validation\Rules\Enum;
 
 class UpdateDataController extends Controller
 {
@@ -113,6 +117,56 @@ class UpdateDataController extends Controller
 
         toastr()->closeButton(true)->addSuccess('Stock has been returned successfully');
         return redirect('stock-return');
+    }
+
+    public function GetUserID($id)
+    {
+        $userData = User::with('roles')->findOrFail($id);
+
+        return view('updateUser', ['userData' => $userData]);
+    }
+
+    public function UpdateUser(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+        $isSelf = (int) $user->id === (int) Auth::id();
+
+        $request->validate([
+            'first_name' => 'required|string|max:100',
+            'last_name'  => 'nullable|string|max:100',
+            'role'       => ['required', new Enum(UserRole::class)],
+            'is_active'  => 'required|boolean',
+            'password'   => 'nullable|min:8',
+        ], [
+            'first_name.required' => 'First name is required',
+            'role.required'       => 'Role is required',
+            'is_active.required'  => 'Status is required',
+            'password.min'        => 'Password must be at least 8 characters long',
+        ]);
+
+        if ($isSelf && ! $request->boolean('is_active')) {
+            toastr()->error('You cannot deactivate your own account.');
+            return redirect()->back()->withInput();
+        }
+
+        $firstName = trim($request->input('first_name'));
+        $lastName  = trim($request->input('last_name', ''));
+
+        $user->first_name = $firstName;
+        $user->last_name  = $lastName ?: null;
+        $user->name       = trim($firstName.' '.($lastName ?: ''));
+        $user->is_active  = $request->boolean('is_active');
+
+        if ($request->filled('password')) {
+            $user->password = $request->input('password');
+        }
+
+        $user->save();
+        $user->syncRoles([$request->input('role')]);
+
+        toastr()->closeButton(true)->addSuccess('User has been updated successfully.');
+
+        return redirect('userlist');
     }
 
 }
