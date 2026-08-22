@@ -8,6 +8,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Middleware\Login;
 use App\Http\Controllers\UpdateDataController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\LocationController;
 use App\Enums\UserPermission;
 
 Route::get('/', function () {
@@ -32,6 +33,8 @@ Route::middleware(Login::class)->group(function () {
         Route::get('stock-return', 'ReturnList');
         Route::get('issuance-history', 'IssuanceHistory');
     });
+
+    Route::get('locationinfo', [LocationController::class, 'index']);
 });
 
 Route::middleware([Login::class, 'permission:'.UserPermission::BaseDataManage->value])->group(function () {
@@ -50,6 +53,14 @@ Route::middleware([Login::class, 'permission:'.UserPermission::BaseDataManage->v
 
     Route::get('updateEmployee/{id}', [UpdateDataController::class, 'GetEmpID'])->name('editEmployee');
     Route::put('editEmployee/{id}', [UpdateDataController::class, 'UpdateEmployee']);
+
+    Route::controller(LocationController::class)->group(function () {
+        Route::get('add-location', 'create');
+        Route::post('add-location', 'store');
+        Route::get('update-location/{id}', 'edit')->name('editLocation');
+        Route::put('edit-location/{id}', 'update');
+        Route::delete('delete-location/{id}', 'destroy');
+    });
 });
 
 Route::middleware([Login::class, 'permission:'.UserPermission::UsersManage->value])->group(function () {
