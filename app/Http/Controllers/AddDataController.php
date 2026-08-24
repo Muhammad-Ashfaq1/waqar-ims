@@ -132,15 +132,21 @@ class AddDataController extends Controller
     function AddIssuance (Request $request){
 
         $request->validate([
-            'employee_id' =>'required',
-            'stock_id' =>'required',
-            'issuance_date' =>'required',
-            'location_id' => 'required|exists:locations,id',
+            'assign_to' => 'required|in:employee,location',
+            'employee_id' => 'required_if:assign_to,employee|nullable|exists:employees,id',
+            'stock_id' => 'required|exists:stocks,id',
+            'issuance_date' => 'required|date',
+            'location_id' => 'required_if:assign_to,location|nullable|exists:locations,id',
         ],[
-            'employee_id.required' => 'Employee is required',
-            'stock_id.required' => 'Stock is required',
-            'issuance_date.required' => 'Date is required',
-            'location_id.required' => 'Location is required',
+            'assign_to.required' => 'Choose a employee or location',
+            'assign_to.in' => 'Choose a employee or location',
+            'employee_id.required_if' => 'Please choose a employee',
+            'employee_id.exists' => 'Selected employee is invalid',
+            'stock_id.required' => 'Please select a stock item',
+            'stock_id.exists' => 'Selected stock is invalid',
+            'issuance_date.required' => 'Please select the issuance date',
+            'issuance_date.date' => 'Please enter a valid issuance date',
+            'location_id.required_if' => 'Please choose a location',
             'location_id.exists' => 'Selected location is invalid',
         ]);
         $stock = Stock::find($request->input('stock_id'));
@@ -149,8 +155,10 @@ class AddDataController extends Controller
             return redirect()->back()->withInput();
         }
 
-        $location = Location::find($request->input('location_id'));
-        if (! $location) {
+        $location = $request->input('assign_to') === 'location'
+            ? Location::find($request->input('location_id'))
+            : null;
+        if ($request->input('assign_to') === 'location' && ! $location) {
             toastr()->error('Selected location is invalid');
             return redirect()->back()->withInput();
         }
@@ -162,17 +170,19 @@ class AddDataController extends Controller
 
             Issuance::insert([
                 'stock_id' => $stock->id,
-                'employee_id' => $request->input('employee_id'),
+                'employee_id' => $request->input('assign_to') === 'employee' ? $request->input('employee_id') : null,
                 'issuance_date' => $request->input('issuance_date'),
-                'location_id' => $location->id,
-                'location' => $location->name,
+                'location_id' => $location?->id,
+                'location' => $location?->name,
+                'assignment_type' => $request->input('assign_to'),
                 'created_at' => Carbon::now(),
             ]);
 
-            Stock::where('id', $stock->id)->update([
-                'status' => Stock::STATUS_ISSUED,
-                'location_id' => $location->id,
-            ]);
+            $stockUpdate = ['status' => Stock::STATUS_ISSUED];
+            if ($location) {
+                $stockUpdate['location_id'] = $location->id;
+            }
+            Stock::where('id', $stock->id)->update($stockUpdate);
         });
 
         toastr()->closeButton(true)->addSuccess('Stock has been issued successfully');

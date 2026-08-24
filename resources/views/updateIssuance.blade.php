@@ -26,37 +26,53 @@
                 @csrf
                 @method('PUT')
                 <div class="form-group">
-                  <label class="control-label col-md-3 col-sm-3 col-xs-12">Stock <span class="required">*</span>
-                  </label>
+                  <label class="control-label col-md-3 col-sm-3 col-xs-12">Stock <span class="required">*</span></label>
                   <div class="col-md-6 col-sm-6 col-xs-12">
                     <select class="form-control" name="stock_id">
                         <option value="{{ $issuanceID->GetStock['id']}}">{{$issuanceID->GetStock->GetAsset['type']}}&nbsp;|&nbsp;{{ $issuanceID->GetStock['serial_no']}}</option>
                       </select>
-                </div>
+                  </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12">Employee <span class="required">*</span>
-                    </label>
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12">Assign To <span class="required">*</span></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
-                      <select class="form-control" name="employee_id" id="select1">
-                          <option value="{{ $issuanceID->GetEmployee['id']}}">{{$issuanceID->GetEmployee['emp_name'] }}&nbsp;|&nbsp;{{ $issuanceID->GetEmployee['designation']}}&nbsp;|&nbsp;{{ $issuanceID->GetEmployee->GetDepartment['dep_name']}}</option>
+                      @php $assignmentType = old('assign_to', $issuanceID->assignment_type ?: ($issuanceID->employee_id ? 'employee' : 'location')); @endphp
+                      <select class="form-control" name="assign_to" id="assign-to">
+                        <option value="">--Select--</option>
+                        <option value="employee" {{ $assignmentType === 'employee' ? 'selected' : '' }}>Employee</option>
+                        <option value="location" {{ $assignmentType === 'location' ? 'selected' : '' }}>Location / Workshop</option>
+                      </select>
+                    </div>
+                    <div class="col-md-3 col-sm-3 col-xs-12">
+                      @error('assign_to')
+                        <span class="form-control-feedback" style="position:static; display:inline-block; height:auto; width:auto;">{{ $message }}</span>
+                      @enderror
+                    </div>
+                  </div>
+                <div class="form-group" id="employee-assignment-field" style="display: none;">
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12">Employee <span class="required">*</span></label>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                      <select class="form-control" name="employee_id" id="issuance-employee">
+                          <option value="">--Select--</option>
                           @foreach ($emp as $data)
-                          <option value="{{$data->id}}">{{$data->emp_name }}&nbsp;|&nbsp;{{ $data->designation}}&nbsp;|&nbsp;{{ $data->GetDepartment['dep_name']}}</option>
+                          <option value="{{$data->id}}" {{ (string) old('employee_id', $issuanceID->employee_id) === (string) $data->id ? 'selected' : '' }}>{{$data->emp_name }}&nbsp;|&nbsp;{{ $data->designation}}&nbsp;|&nbsp;{{ $data->GetDepartment['dep_name']}}</option>
                           @endforeach
                         </select>
                     </div>
-                  </div>
-                  <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Date of Issuance<span class="required">*</span>
-                    </label>
-                    <div class="col-md-6 col-sm-6 col-xs-12">
-                      <input type="date" class="form-control col-md-7 col-xs-12" name="issuance_date" value="{{$issuanceID->issuance_date}}" readonly>
-
+                    <div class="col-md-3 col-sm-3 col-xs-12">
+                      @error('employee_id')
+                        <span class="form-control-feedback" style="position:static; display:inline-block; height:auto; width:auto;">{{ $message }}</span>
+                      @enderror
                     </div>
                   </div>
                   <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Location <span class="required">*</span>
-                    </label>
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12">Date of Issuance <span class="required">*</span></label>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                      <input type="date" class="form-control" name="issuance_date" value="{{ optional($issuanceID->issuance_date)->format('Y-m-d') }}" readonly>
+                    </div>
+                  </div>
+                  <div class="form-group" id="location-assignment-field" style="display: none;">
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12">Location <span class="required">*</span></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                       <select class="form-control" name="location_id" id="issuance-location">
                           <option value="">--Select--</option>
@@ -66,12 +82,15 @@
                             </option>
                           @endforeach
                         </select>
-                        <span class="form-control-feedback right">@error('location_id') {{$message}} @enderror</span>
+                    </div>
+                    <div class="col-md-3 col-sm-3 col-xs-12">
+                      @error('location_id')
+                        <span class="form-control-feedback" style="position:static; display:inline-block; height:auto; width:auto;">{{ $message }}</span>
+                      @enderror
                     </div>
                   </div>
                   <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" >Status
-                    </label>
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12">Status</label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                       <input type="text" class="form-control" value="Issued" readonly>
                     </div>
@@ -97,8 +116,46 @@
   </div>
 <script>
   $(document).ready(function() {
-    $('#select1').select2();
-});
+    $('select').select2({ width: '100%' });
+
+    function fixSelectWidth($el) {
+      if ($el.data('select2')) {
+        $el.select2('destroy');
+      }
+      $el.select2({ width: '100%' });
+      $el.next('.select2-container').css('width', '100%');
+    }
+
+    function toggleAssignmentFields() {
+      var assignTo = $('#assign-to').val();
+      var isEmployee = assignTo === 'employee';
+      var isLocation = assignTo === 'location';
+
+      $('#employee-assignment-field').toggle(isEmployee);
+      $('#location-assignment-field').toggle(isLocation);
+
+      $('#issuance-employee').prop('disabled', !isEmployee);
+      $('#issuance-location').prop('disabled', !isLocation);
+
+      if (!isEmployee) {
+        $('#issuance-employee').val(null);
+      }
+      if (!isLocation) {
+        $('#issuance-location').val(null);
+      }
+
+      setTimeout(function () {
+        if (isEmployee) {
+          fixSelectWidth($('#issuance-employee'));
+        }
+        if (isLocation) {
+          fixSelectWidth($('#issuance-location'));
+        }
+      }, 0);
+    }
+
+    $('#assign-to').on('change', toggleAssignmentFields);
+    toggleAssignmentFields();
+  });
 </script>
 @endsection
-

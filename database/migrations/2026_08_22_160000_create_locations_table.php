@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('name')->unique();
             $table->string('slug')->unique();
-            $table->enum('location_type', ['town', 'workshop', 'office', 'yard'])->default('town');
+            $table->enum('location_type', ['town', 'workshop'])->default('town');
             $table->boolean('is_active')->default(true);
             $table->softDeletes();
             $table->timestamps();

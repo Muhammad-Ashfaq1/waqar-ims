@@ -38,6 +38,35 @@ class Issuance extends Model
         return $legacy !== '' ? $legacy : '-';
     }
 
+    public function getAssignedToDisplayAttribute(): string
+    {
+        $type = $this->assignment_type
+            ?: ($this->employee_id ? 'employee' : ($this->location_id || trim((string) ($this->attributes['location'] ?? '')) !== '' ? 'location' : null));
+
+        if ($type === 'location') {
+            $name = $this->location_display;
+
+            return $name !== '-' ? 'Location — '.$name : '-';
+        }
+
+        if ($type === 'employee') {
+            $name = $this->getEmployee?->emp_name;
+
+            return $name ? 'Employee — '.$name : '-';
+        }
+
+        return '-';
+    }
+
+    public function getAssignmentTypeLabelAttribute(): string
+    {
+        return match ($this->assignment_type) {
+            'location' => 'Location',
+            'employee' => 'Employee',
+            default => $this->employee_id ? 'Employee' : (($this->location_id || trim((string) ($this->attributes['location'] ?? '')) !== '') ? 'Location' : '-'),
+        };
+    }
+
     public function getDaysHeldAttribute(): ?int
     {
         if (! $this->issuance_date) {

@@ -85,16 +85,22 @@ class UpdateDataController extends Controller
     //this function update issuance data.
     public function UpdateIssuance(Request $request, $id){
         $request->validate([
-            'employee_id' => 'required',
-            'location_id' => 'required|exists:locations,id',
+            'assign_to' => 'required|in:employee,location',
+            'employee_id' => 'required_if:assign_to,employee|nullable|exists:employees,id',
+            'location_id' => 'required_if:assign_to,location|nullable|exists:locations,id',
         ], [
-            'employee_id.required' => 'Employee is required',
-            'location_id.required' => 'Location is required',
+            'assign_to.required' => 'Choose a employee or location',
+            'assign_to.in' => 'Choose a employee or location',
+            'employee_id.required_if' => 'Please choose a employee',
+            'employee_id.exists' => 'Selected employee is invalid',
+            'location_id.required_if' => 'Please choose a location',
             'location_id.exists' => 'Selected location is invalid',
         ]);
 
-        $location = Location::find($request->input('location_id'));
-        if (! $location) {
+        $location = $request->input('assign_to') === 'location'
+            ? Location::find($request->input('location_id'))
+            : null;
+        if ($request->input('assign_to') === 'location' && ! $location) {
             toastr()->error('Selected location is invalid');
             return redirect()->back()->withInput();
         }
@@ -105,12 +111,13 @@ class UpdateDataController extends Controller
             return redirect('issuance');
         }
 
-        $issuance->employee_id = $request->input('employee_id');
-        $issuance->location_id = $location->id;
-        $issuance->location = $location->name;
+        $issuance->employee_id = $request->input('assign_to') === 'employee' ? $request->input('employee_id') : null;
+        $issuance->location_id = $location?->id;
+        $issuance->location = $location?->name;
+        $issuance->assignment_type = $request->input('assign_to');
         $issuance->save();
 
-        if ($issuance->stock_id) {
+        if ($issuance->stock_id && $location) {
             Stock::where('id', $issuance->stock_id)->update(['location_id' => $location->id]);
         }
 

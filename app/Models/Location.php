@@ -30,10 +30,6 @@ class Location extends Model
 
     public const LOCATION_TYPE_WORKSHOP = 'workshop';
 
-    public const LOCATION_TYPE_OFFICE = 'office';
-
-    public const LOCATION_TYPE_YARD = 'yard';
-
     public const IS_ACTIVE = 1;
 
     public const IS_INACTIVE = 0;

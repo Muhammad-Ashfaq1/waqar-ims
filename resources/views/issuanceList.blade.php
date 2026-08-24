@@ -41,9 +41,7 @@
                 <thead>
                   <tr>
                     <th>Sr.</th>
-                    <th>Employee</th>
-                    <th>Designation</th>
-                    <th>Department</th>
+                    <th>Assigned To</th>
                     <th>Asset Type</th>
                     <th>Model</th>
                     <th>Serial No.</th>
@@ -61,9 +59,7 @@
                 @foreach ($issuancedata as $data)
                 <tr>
                     <td>{{$counter++}}</td>
-                    <td>{{$data->getEmployee['emp_name']}}</td>
-                    <td>{{$data->getEmployee['designation']}}</td>
-                    <td>{{$data->getEmployee->getDepartment['dep_name']}}</td>
+                    <td>{{ $data->assigned_to_display }}</td>
                     <td>{{$data->getStock->getAsset['type']}}</td>
                     <td>{{$data->getStock['model']}}</td>
                     <td>{{$data->getStock['serial_no']}}</td>

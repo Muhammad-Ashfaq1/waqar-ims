@@ -6,16 +6,12 @@ enum LocationType: string
 {
     case Town = 'town';
     case Workshop = 'workshop';
-    case Office = 'office';
-    case Yard = 'yard';
 
     public function label(): string
     {
         return match ($this) {
             self::Town => 'Town',
             self::Workshop => 'Workshop',
-            self::Office => 'Office',
-            self::Yard => 'Yard',
         };
     }
 

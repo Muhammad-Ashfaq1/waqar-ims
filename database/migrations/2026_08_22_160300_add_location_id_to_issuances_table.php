@@ -42,34 +42,25 @@ return new class extends Migration
             ->distinct()
             ->pluck('location');
 
-        foreach ($legacy as $name) {
-            $name = trim((string) $name);
+        foreach ($legacy as $rawName) {
+            $name = trim(preg_replace('/\s+/u', ' ', (string) $rawName) ?: '');
             if ($name === '') {
                 continue;
             }
 
-            $location = DB::table('locations')->where('name', $name)->first();
-            if (! $location) {
-                $slug = Str::slug($name);
-                $baseSlug = $slug;
-                $i = 1;
-                while (DB::table('locations')->where('slug', $slug)->exists()) {
-                    $slug = $baseSlug.'-'.$i++;
-                }
+            // Only link to existing eworkshop locations — never create IMS office/yard rows.
+            $location = DB::table('locations')
+                ->whereRaw('LOWER(TRIM(name)) = ?', [Str::lower($name)])
+                ->first();
 
-                $id = DB::table('locations')->insertGetId([
-                    'name' => $name,
-                    'slug' => $slug,
-                    'location_type' => 'office',
-                    'is_active' => 1,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-            } else {
-                $id = $location->id;
+            if (! $location) {
+                continue;
             }
 
-            DB::table('issuances')->where('location', $name)->update(['location_id' => $id]);
+            DB::table('issuances')
+                ->whereRaw('LOWER(TRIM(location)) = ?', [Str::lower($name)])
+                ->whereNull('location_id')
+                ->update(['location_id' => $location->id]);
         }
     }
 
