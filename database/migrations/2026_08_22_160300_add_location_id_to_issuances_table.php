@@ -10,9 +10,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        DB::statement("SET SESSION sql_mode = ''");
-        DB::statement("UPDATE issuances SET updated_at = IF(created_at IS NULL OR created_at = '0000-00-00', CURDATE(), created_at) WHERE updated_at IS NULL OR updated_at = '0000-00-00'");
-        DB::statement("UPDATE issuances SET created_at = CURDATE() WHERE created_at IS NULL OR created_at = '0000-00-00'");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("SET SESSION sql_mode = ''");
+            DB::statement("UPDATE issuances SET updated_at = IF(created_at IS NULL OR created_at = '0000-00-00', CURDATE(), created_at) WHERE updated_at IS NULL OR updated_at = '0000-00-00'");
+            DB::statement("UPDATE issuances SET created_at = CURDATE() WHERE created_at IS NULL OR created_at = '0000-00-00'");
+        }
 
         if (! Schema::hasColumn('issuances', 'location_id')) {
             Schema::table('issuances', function (Blueprint $table) {
@@ -20,14 +22,17 @@ return new class extends Migration
             });
         }
 
-        $fkExists = collect(DB::select("
-            SELECT CONSTRAINT_NAME
-            FROM information_schema.TABLE_CONSTRAINTS
-            WHERE TABLE_SCHEMA = DATABASE()
-              AND TABLE_NAME = 'issuances'
-              AND CONSTRAINT_NAME = 'issuances_location_id_foreign'
-              AND CONSTRAINT_TYPE = 'FOREIGN KEY'
-        "))->isNotEmpty();
+        $fkExists = false;
+        if (DB::getDriverName() === 'mysql') {
+            $fkExists = collect(DB::select("
+                SELECT CONSTRAINT_NAME
+                FROM information_schema.TABLE_CONSTRAINTS
+                WHERE TABLE_SCHEMA = DATABASE()
+                  AND TABLE_NAME = 'issuances'
+                  AND CONSTRAINT_NAME = 'issuances_location_id_foreign'
+                  AND CONSTRAINT_TYPE = 'FOREIGN KEY'
+            "))->isNotEmpty();
+        }
 
         if (! $fkExists) {
             Schema::table('issuances', function (Blueprint $table) {

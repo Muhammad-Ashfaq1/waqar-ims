@@ -9,6 +9,8 @@ class Employee extends Model
 {
     use HasFactory;
 
+    protected $guarded = [];
+
     function GetDepartment(){
         return $this->belongsTo('App\Models\Department', 'department_id');
     }

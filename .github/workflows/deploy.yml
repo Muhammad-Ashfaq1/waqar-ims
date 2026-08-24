@@ -102,6 +102,7 @@ jobs:
           rm -f bootstrap/cache/packages.php bootstrap/cache/services.php
           php artisan package:discover --ansi
           php artisan migrate --force
+          php artisan app:sync-permissions
           php artisan optimize:clear
           EOF
 

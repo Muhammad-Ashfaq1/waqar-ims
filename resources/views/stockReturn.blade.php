@@ -46,7 +46,7 @@
                     <td>{{ optional($data->issuance_date)->format('d-M-Y') }}</td>
                     <td>{{ $data->location_display }}</td>
                     <td>
-                      @if(auth()->user()?->canManageInventory())
+                      @can('inventory.manage')
                       <a href="{{ route('returnIssuance', $data->id) }}"
                          class="btn btn-app js-return-asset"
                          style="padding: 5px 5px; min-width: 39px; height: 31px;"
@@ -60,7 +60,7 @@
                       </a>
                       @else
                       —
-                      @endif
+                      @endcan
                     </td>
                 </tr>
                 @endforeach
