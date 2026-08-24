@@ -2,14 +2,17 @@
 
 namespace App\Models;
 
+use App\Enums\UserPermission;
+use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory, HasRoles, Notifiable;
 
     protected $fillable = [
         'name',
@@ -19,6 +22,7 @@ class User extends Authenticatable
         'password',
         'mobile',
         'profile_image',
+        'is_active',
     ];
 
     protected $hidden = [
@@ -31,6 +35,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
         ];
     }
 
@@ -41,5 +46,40 @@ class User extends Authenticatable
         }
 
         return asset('img/img.jpg');
+    }
+
+    public function getRoleLabelAttribute(): string
+    {
+        return UserRole::labelFor($this->roles->first()?->name);
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->hasRole(UserRole::SuperAdmin->value);
+    }
+
+    public function isInventoryManager(): bool
+    {
+        return $this->hasRole(UserRole::InventoryManager->value);
+    }
+
+    public function isEmployee(): bool
+    {
+        return $this->hasRole(UserRole::Employee->value);
+    }
+
+    public function canManageBaseData(): bool
+    {
+        return $this->is_active && $this->can(UserPermission::BaseDataManage->value);
+    }
+
+    public function canManageUsers(): bool
+    {
+        return $this->is_active && $this->can(UserPermission::UsersManage->value);
+    }
+
+    public function canManageInventory(): bool
+    {
+        return $this->is_active && $this->can(UserPermission::InventoryManage->value);
     }
 }

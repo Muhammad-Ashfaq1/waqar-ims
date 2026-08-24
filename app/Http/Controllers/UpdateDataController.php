@@ -7,6 +7,11 @@ use App\Models\Employee;
 use App\Models\Department;
 use App\Models\Stock;
 use App\Models\Issuance;
+use App\Models\User;
+use App\Models\Location;
+use Illuminate\Support\Facades\Auth;
+use App\Enums\UserRole;
+use Illuminate\Validation\Rules\Enum;
 
 class UpdateDataController extends Controller
 {
@@ -41,6 +46,12 @@ class UpdateDataController extends Controller
     }
     //this function update stock data.
     public function UpdateStock(Request $request, $id){
+        $request->validate([
+            'status' => 'required',
+        ], [
+            'status.required' => 'Status is required',
+        ]);
+
         $status = $request->input('status');
 
         $stock = Stock::find($id);
@@ -58,15 +69,48 @@ class UpdateDataController extends Controller
     }
     //this function get ID of Issuance.
     public function GetIssuanceID ($id){
-        $issueID = Issuance::with('GetStock.GetAsset', 'GetEmployee.GetDepartment')->find($id);
+        $issueID = Issuance::with('GetStock.GetAsset', 'GetEmployee.GetDepartment', 'assignedLocation')->find($id);
         $emp = Employee::with('GetDepartment')->get();
-        return view('updateIssuance', ['issuanceID' => $issueID, 'emp' => $emp]);
+        $locations = Location::active()->orderBy('name')->get();
+        return view('updateIssuance', [
+            'issuanceID' => $issueID,
+            'emp' => $emp,
+            'locations' => $locations,
+        ]);
     }
     //this function update issuance data.
     public function UpdateIssuance(Request $request, $id){
+        $request->validate([
+            'assign_to' => 'required|in:employee,location',
+            'employee_id' => 'required_if:assign_to,employee|nullable|exists:employees,id',
+            'location_id' => 'required_if:assign_to,location|nullable|exists:locations,id',
+        ], [
+            'assign_to.required' => 'Choose a employee or location',
+            'assign_to.in' => 'Choose a employee or location',
+            'employee_id.required_if' => 'Please choose a employee',
+            'employee_id.exists' => 'Selected employee is invalid',
+            'location_id.required_if' => 'Please choose a location',
+            'location_id.exists' => 'Selected location is invalid',
+        ]);
+
+        $location = $request->input('assign_to') === 'location'
+            ? Location::find($request->input('location_id'))
+            : null;
+        if ($request->input('assign_to') === 'location' && ! $location) {
+            toastr()->error('Selected location is invalid');
+            return redirect()->back()->withInput();
+        }
+
         $issuance = Issuance::find($id);
-        $issuance->employee_id = $request->input('employee_id');
-        $issuance->location = $request->input('location');
+        if (! $issuance) {
+            toastr()->error('Issuance record not found');
+            return redirect('issuance');
+        }
+
+        $issuance->employee_id = $request->input('assign_to') === 'employee' ? $request->input('employee_id') : null;
+        $issuance->location_id = $location?->id;
+        $issuance->location = $location?->name;
+        $issuance->assignment_type = $request->input('assign_to');
         $issuance->save();
 
         toastr()->closeButton(true)->addSuccess('Issuance record has been updated');
@@ -74,7 +118,7 @@ class UpdateDataController extends Controller
     }
 
     public function GetReturnID($id){
-        $issuance = Issuance::with('GetStock.GetAsset', 'GetEmployee.GetDepartment')->find($id);
+        $issuance = Issuance::with('GetStock.GetAsset', 'GetEmployee.GetDepartment', 'assignedLocation')->find($id);
 
         if (! $issuance || $issuance->return_date) {
             toastr()->error('This asset is already returned to stock.');
@@ -113,6 +157,56 @@ class UpdateDataController extends Controller
 
         toastr()->closeButton(true)->addSuccess('Stock has been returned successfully');
         return redirect('stock-return');
+    }
+
+    public function GetUserID($id)
+    {
+        $userData = User::with('roles')->findOrFail($id);
+
+        return view('updateUser', ['userData' => $userData]);
+    }
+
+    public function UpdateUser(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+        $isSelf = (int) $user->id === (int) Auth::id();
+
+        $request->validate([
+            'first_name' => 'required|string|max:100',
+            'last_name'  => 'nullable|string|max:100',
+            'role'       => ['required', new Enum(UserRole::class)],
+            'is_active'  => 'required|boolean',
+            'password'   => 'nullable|min:8',
+        ], [
+            'first_name.required' => 'First name is required',
+            'role.required'       => 'Role is required',
+            'is_active.required'  => 'Status is required',
+            'password.min'        => 'Password must be at least 8 characters long',
+        ]);
+
+        if ($isSelf && ! $request->boolean('is_active')) {
+            toastr()->error('You cannot deactivate your own account.');
+            return redirect()->back()->withInput();
+        }
+
+        $firstName = trim($request->input('first_name'));
+        $lastName  = trim($request->input('last_name', ''));
+
+        $user->first_name = $firstName;
+        $user->last_name  = $lastName ?: null;
+        $user->name       = trim($firstName.' '.($lastName ?: ''));
+        $user->is_active  = $request->boolean('is_active');
+
+        if ($request->filled('password')) {
+            $user->password = $request->input('password');
+        }
+
+        $user->save();
+        $user->syncRoles([$request->input('role')]);
+
+        toastr()->closeButton(true)->addSuccess('User has been updated successfully.');
+
+        return redirect('userlist');
     }
 
 }

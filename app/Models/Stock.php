@@ -13,6 +13,10 @@ class Stock extends Model
         return $this->belongsTo('App\Models\Asset', 'asset_id');
     }
 
+    public function location()
+    {
+        return $this->belongsTo(Location::class, 'location_id');
+    }
 
     const STATUS_IN_STOCK = 'In Stock';
     const STATUS_ISSUED = 'Issued';

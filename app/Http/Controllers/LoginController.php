@@ -28,6 +28,15 @@ class LoginController extends Controller
         $remember = $request->boolean('remember');
 
         if (Auth::attempt($request->only('email', 'password'), $remember)) {
+            $user = Auth::user();
+
+            if (! $user->is_active) {
+                Auth::logout();
+                toastr()->error('Your account is inactive. Contact Super Admin.');
+
+                return redirect()->route('login')->withInput($request->only('email', 'remember'));
+            }
+
             $request->session()->regenerate();
             toastr()->closeButton(true)->addSuccess('Welcome to Inventory Management System');
 

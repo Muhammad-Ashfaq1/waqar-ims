@@ -48,6 +48,39 @@
     flex-direction: column;
 }
 
+.ims-dash-panel-body-tight {
+    padding-bottom: 0.5rem;
+}
+
+.ims-dash-panel-body-tight .ims-dash-table {
+    margin-bottom: 0;
+}
+
+/* Equal-height side-by-side cards; both tables scroll inside same height */
+.ims-dash-row-equal {
+    align-items: stretch;
+}
+
+.ims-dash-row-equal .ims-dash-card-fill {
+    min-height: 380px;
+}
+
+.ims-dash-panel-grow {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.ims-dash-table-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: 320px;
+    overflow-y: auto;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
 .ims-dash-kpis > [class*="col-"] {
     float: none;
     width: 16.66666667%;

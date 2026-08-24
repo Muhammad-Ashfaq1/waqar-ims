@@ -149,7 +149,7 @@
                     <td>{{ optional($data->issuance_date)->format('d-M-Y') }}</td>
                     <td>{{ optional($data->return_date)->format('d-M-Y') ?: '-' }}</td>
                     <td>{{ $data->held_for }}</td>
-                    <td>{{ $data->location ?: '-' }}</td>
+                    <td>{{ $data->location_display }}</td>
                     <td>{{ $data->history_status }}</td>
                 </tr>
                 @empty

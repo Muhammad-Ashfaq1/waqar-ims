@@ -47,7 +47,7 @@
                 <div class="form-group">
                   <label class="control-label col-md-3 col-sm-3 col-xs-12">Location</label>
                   <div class="col-md-6 col-sm-6 col-xs-12">
-                    <input type="text" class="form-control" value="{{ $issuanceID->location }}" readonly>
+                    <input type="text" class="form-control" value="{{ $issuanceID->location_display }}" readonly>
                   </div>
                 </div>
                 <div class="form-group">

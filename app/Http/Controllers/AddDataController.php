@@ -9,9 +9,12 @@ use App\Models\Asset;
 use App\Models\Stock;
 use App\Models\Issuance;
 use App\Models\User;
+use App\Models\Location;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use App\Enums\UserRole;
+use Illuminate\Validation\Rules\Enum;
 
 
 
@@ -91,7 +94,7 @@ class AddDataController extends Controller
             'serial' =>'required | string',
             'purchase_date' =>'required | date',
             'expiry_date' =>'required | date',
-            'status' =>'required'
+            'status' =>'required',
         ],[
             'assettype.required' => 'Asset Type is required',
            'model.required' => 'Model is required',
@@ -102,7 +105,7 @@ class AddDataController extends Controller
             'purchase_date.date' => 'Must be a valid date',
             'expiry_date.required' => 'Expiry Date is must',
             'expiry_date.date' => 'Must be a valid date',
-           'status.required' => 'Status is required'
+           'status.required' => 'Status is required',
         ]);
         $insertStock = [
             'asset_id' => $request->input('assettype'),
@@ -126,15 +129,22 @@ class AddDataController extends Controller
     function AddIssuance (Request $request){
 
         $request->validate([
-            'employee_id' =>'required',
-            'stock_id' =>'required',
-            'issuance_date' =>'required',
-            'location' => 'required'
+            'assign_to' => 'required|in:employee,location',
+            'employee_id' => 'required_if:assign_to,employee|nullable|exists:employees,id',
+            'stock_id' => 'required|exists:stocks,id',
+            'issuance_date' => 'required|date',
+            'location_id' => 'required_if:assign_to,location|nullable|exists:locations,id',
         ],[
-            'employee_id.required' => 'Employee is required',
-            'stock_id.required' => 'Stock is required',
-            'issuance_date.required' => 'Date is required',
-            'location.required' => 'Location is required'
+            'assign_to.required' => 'Choose a employee or location',
+            'assign_to.in' => 'Choose a employee or location',
+            'employee_id.required_if' => 'Please choose a employee',
+            'employee_id.exists' => 'Selected employee is invalid',
+            'stock_id.required' => 'Please select a stock item',
+            'stock_id.exists' => 'Selected stock is invalid',
+            'issuance_date.required' => 'Please select the issuance date',
+            'issuance_date.date' => 'Please enter a valid issuance date',
+            'location_id.required_if' => 'Please choose a location',
+            'location_id.exists' => 'Selected location is invalid',
         ]);
         $stock = Stock::find($request->input('stock_id'));
         if (!$stock || $stock->status !== Stock::STATUS_IN_STOCK) {
@@ -142,22 +152,31 @@ class AddDataController extends Controller
             return redirect()->back()->withInput();
         }
 
-        DB::transaction(function () use ($request, $stock) {
+        $location = $request->input('assign_to') === 'location'
+            ? Location::find($request->input('location_id'))
+            : null;
+        if ($request->input('assign_to') === 'location' && ! $location) {
+            toastr()->error('Selected location is invalid');
+            return redirect()->back()->withInput();
+        }
+
+        DB::transaction(function () use ($request, $stock, $location) {
             Issuance::where('stock_id', $stock->id)
                 ->whereNull('return_date')
                 ->update(['return_date' => Carbon::now()->toDateString()]);
 
             Issuance::insert([
                 'stock_id' => $stock->id,
-                'employee_id' => $request->input('employee_id'),
+                'employee_id' => $request->input('assign_to') === 'employee' ? $request->input('employee_id') : null,
                 'issuance_date' => $request->input('issuance_date'),
-                'location' => $request->input('location'),
+                'location_id' => $location?->id,
+                'location' => $location?->name,
+                'assignment_type' => $request->input('assign_to'),
                 'created_at' => Carbon::now(),
             ]);
 
-            Stock::where('id', $stock->id)->update([
-                'status' => Stock::STATUS_ISSUED,
-            ]);
+            $stockUpdate = ['status' => Stock::STATUS_ISSUED];
+            Stock::where('id', $stock->id)->update($stockUpdate);
         });
 
         toastr()->closeButton(true)->addSuccess('Stock has been issued successfully');
@@ -168,32 +187,35 @@ class AddDataController extends Controller
             'first_name' => 'required|string|max:100',
             'last_name'  => 'nullable|string|max:100',
             'email'      => 'required|email|unique:users,email',
-            'password'   => 'required|min:8'
+            'password'   => 'required|min:8',
+            'role'       => ['required', new Enum(UserRole::class)],
         ], [
             'first_name.required' => 'First name is required',
             'email.required'      => 'Email is required',
             'email.unique'        => 'This email is already registered',
             'password.required'   => 'Password is required',
-            'password.min'        => 'Password must be at least 8 characters long'
+            'password.min'        => 'Password must be at least 8 characters long',
+            'role.required'       => 'Role is required',
+            'role.in'             => 'Invalid role selected',
         ]);
 
         $firstName = trim($request->input('first_name'));
         $lastName  = trim($request->input('last_name', ''));
         $fullName  = trim($firstName . ' ' . $lastName);
 
-        $insertUser = [
+        $user = User::create([
             'name'       => $fullName,
             'first_name' => $firstName,
             'last_name'  => $lastName ?: null,
             'email'      => $request->input('email'),
-            'password'   => Hash::make($request->input('password')),
-            'created_at' => Carbon::now()
-        ];
+            'password'   => $request->input('password'),
+            'is_active'  => true,
+        ]);
 
-        $response = User::insert($insertUser);
-        if($response){
-            toastr()->closeButton(true)->addSuccess('User has been added successfully');
-            return redirect('add-user');
-        }
+        $user->assignRole($request->enum('role', UserRole::class)->value);
+
+        toastr()->closeButton(true)->addSuccess('User has been added successfully');
+
+        return redirect('userlist');
     }
 }

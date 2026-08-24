@@ -23,9 +23,7 @@
                 <thead>
                   <tr>
                     <th>Sr.</th>
-                    <th>Employee</th>
-                    <th>Designation</th>
-                    <th>Department</th>
+                    <th>Assigned To</th>
                     <th>Asset Type</th>
                     <th>Model</th>
                     <th>Serial No.</th>
@@ -39,15 +37,14 @@
                 @foreach ($issuancedata as $data)
                 <tr>
                     <td>{{ $counter++ }}</td>
-                    <td>{{ optional($data->getEmployee)->emp_name ?? '-' }}</td>
-                    <td>{{ optional($data->getEmployee)->designation ?? '-' }}</td>
-                    <td>{{ optional(optional($data->getEmployee)->getDepartment)->dep_name ?? '-' }}</td>
+                    <td>{{ $data->assigned_to_display }}</td>
                     <td>{{ optional(optional($data->getStock)->getAsset)->type ?? '-' }}</td>
                     <td>{{ optional($data->getStock)->model ?? '-' }}</td>
                     <td>{{ optional($data->getStock)->serial_no ?? '-' }}</td>
                     <td>{{ optional($data->issuance_date)->format('d-M-Y') }}</td>
-                    <td>{{ $data->location ?: '-' }}</td>
+                    <td>{{ $data->location_display }}</td>
                     <td>
+                      @if(auth()->user()?->canManageInventory())
                       <a href="{{ route('returnIssuance', $data->id) }}"
                          class="btn btn-app js-return-asset"
                          style="padding: 5px 5px; min-width: 39px; height: 31px;"
@@ -59,6 +56,9 @@
                          data-issue-date="{{ optional($data->issuance_date)->format('Y-m-d') }}">
                         <i class="fa fa-undo"></i>
                       </a>
+                      @else
+                      —
+                      @endif
                     </td>
                 </tr>
                 @endforeach

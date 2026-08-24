@@ -25,71 +25,79 @@
               <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left" method="POST" action="{{url('addIssuance')}}">
                 @csrf
                 <div class="form-group">
-                  <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Stock <span class="required">*</span>
-                  </label>
+                  <label class="control-label col-md-3 col-sm-3 col-xs-12">Stock <span class="required">*</span></label>
                   <div class="col-md-6 col-sm-6 col-xs-12">
-                    <select class="form-control" name="stock_id" value="{{old('stock_id')}}">
+                    <select class="form-control" name="stock_id">
                         <option value="">--Select--</option>
                         @foreach ($assetlist as $data)
-                        <option value="{{$data->id}}">{{$data->GetAsset['type']}}&nbsp;|&nbsp;{{$data->serial_no}}</option>
+                        <option value="{{$data->id}}" {{ (string) old('stock_id') === (string) $data->id ? 'selected' : '' }}>{{$data->GetAsset['type']}}&nbsp;|&nbsp;{{$data->serial_no}}</option>
                         @endforeach
                       </select>
-                      <span class="form-control-feedback right">@error('stock_id') {{$message}} @enderror</span>
+                  </div>
+                  <div class="col-md-3 col-sm-3 col-xs-12">
+                    @error('stock_id')
+                      <span class="form-control-feedback" style="position:static; display:inline-block; height:auto; width:auto;">{{ $message }}</span>
+                    @enderror
                   </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Employee <span class="required">*</span>
-                    </label>
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12">Assign To <span class="required">*</span></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
-                      <select class="form-control" name="employee_id" value="{{old('employee_id')}}">
+                      <select class="form-control" name="assign_to" id="assign-to">
+                        <option value="">--Select--</option>
+                        <option value="employee" {{ old('assign_to') === 'employee' ? 'selected' : '' }}>Employee</option>
+                        <option value="location" {{ old('assign_to') === 'location' ? 'selected' : '' }}>Location / Workshop</option>
+                      </select>
+                    </div>
+                    <div class="col-md-3 col-sm-3 col-xs-12">
+                      @error('assign_to')
+                        <span class="form-control-feedback" style="position:static; display:inline-block; height:auto; width:auto;">{{ $message }}</span>
+                      @enderror
+                    </div>
+                  </div>
+                <div class="form-group" id="employee-assignment-field" style="display: none;">
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12">Employee <span class="required">*</span></label>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                      <select class="form-control" name="employee_id" id="issuance-employee">
                           <option value="">--Select--</option>
                           @foreach ($emplist as $data)
-                          <option value="{{$data->id}}">{{$data->emp_name }}&nbsp;|&nbsp;{{ $data->designation}}&nbsp;|&nbsp;{{ $data->GetDepartment['dep_name']}}</option>
+                          <option value="{{$data->id}}" {{ (string) old('employee_id') === (string) $data->id ? 'selected' : '' }}>{{$data->emp_name }}&nbsp;|&nbsp;{{ $data->designation}}&nbsp;|&nbsp;{{ $data->GetDepartment['dep_name']}}</option>
                           @endforeach
                         </select>
-                        <span class="form-control-feedback right">@error('employee_id') {{$message}} @enderror</span>
+                    </div>
+                    <div class="col-md-3 col-sm-3 col-xs-12">
+                      @error('employee_id')
+                        <span class="form-control-feedback" style="position:static; display:inline-block; height:auto; width:auto;">{{ $message }}</span>
+                      @enderror
                     </div>
                   </div>
                   <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Date of Issuance<span class="required">*</span>
-                    </label>
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12">Date of Issuance <span class="required">*</span></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
-                      <input type="date" class="form-control col-md-7 col-xs-12" name="issuance_date" value="{{old('issuance_date')}}">
-                      <span class="form-control-feedback right">@error('issuance_date') {{$message}} @enderror</span>
+                      <input type="date" class="form-control" name="issuance_date" value="{{old('issuance_date')}}">
+                    </div>
+                    <div class="col-md-3 col-sm-3 col-xs-12">
+                      @error('issuance_date')
+                        <span class="form-control-feedback" style="position:static; display:inline-block; height:auto; width:auto;">{{ $message }}</span>
+                      @enderror
                     </div>
                   </div>
-                  <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Location <span class="required">*</span>
-                    </label>
+                  <div class="form-group" id="location-assignment-field" style="display: none;">
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12">Location <span class="required">*</span></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
-                      <select class="form-control" name="location" value="{{old('location')}}">
+                      <select class="form-control" name="location_id" id="issuance-location">
                           <option value="">--Select--</option>
-                          <option value="Head Office">Head Office</option>
-                          <option value="Lakhodair Admin Block">Lakhodair Admin Block</option>
-                          <option value="Lakhodair Weighbridge">Lakhodair Weighbridge</option>
-                          <option value="Children Hospital Workshop">Children Hospital Workshop</option>
-                          <option value="Outfall Road Workshop North">Outfall Road Workshop North</option>
-                          <option value="Outfall Road Workshop South">Outfall Road Vigilance Office/option>
-                          <option value="Outfall Road Workshop South">Outfall Road Workshop South</option>
-                          <option value="Thokar Workshop">Thokar Workshop</option>
-                          <option value="Vigilance Office">Vigilance Office</option>
-                          <option value="Saggian Yard">Saggian Yard</option>
-                          <option value="Badami Bagh Yard">Badami Bagh Yard</option>
-                          <option value="Mehmood Booti Yard">Mehmood Booti Yard</option>
-                          <option value="Salamatpura Yard">Salamatpura Yard</option>
-                          <option value="Jallo Mor Yard">Jallo Mor Yard</option>
-                          <option value="Barki Yard">Barki Yard</option>
-                          <option value="Southworkshop Fleet Office (Rizwan)">Southworkshop Fleet Office (Rizwan)</option>
-                          <option value="Bedian Yard">Bedian Yard</option>
-                          <option value="Sofiabad yard">Sofiabad yard</option>
-                          <option value="Childern Workshop Yard">Childern Workshop Yard</option>
-                          <option value="Thokar Yard">Thokar Yard</option>
-						  <option value="Thokar SBT Yard">Thokar SBT Yard</option>
-						  <option value="Raiwind AIT Yard">Raiwind AIT Yard</option>
-						  <option value="Chunge Yard">Chunge Yard</option>
-
+                          @foreach ($locations as $location)
+                            <option value="{{ $location->id }}" {{ (string) old('location_id') === (string) $location->id ? 'selected' : '' }}>
+                              {{ $location->name }} ({{ $location->type_label }})
+                            </option>
+                          @endforeach
                         </select>
-                        <span class="form-control-feedback right">@error('location') {{$message}} @enderror</span>
+                    </div>
+                    <div class="col-md-3 col-sm-3 col-xs-12">
+                      @error('location_id')
+                        <span class="form-control-feedback" style="position:static; display:inline-block; height:auto; width:auto;">{{ $message }}</span>
+                      @enderror
                     </div>
                   </div>
                 <div class="ln_solid"></div>
@@ -113,8 +121,46 @@
   </div>
 <script>
   $(document).ready(function() {
-    $('select').select2();
-});
+    $('select').select2({ width: '100%' });
+
+    function fixSelectWidth($el) {
+      if ($el.data('select2')) {
+        $el.select2('destroy');
+      }
+      $el.select2({ width: '100%' });
+      $el.next('.select2-container').css('width', '100%');
+    }
+
+    function toggleAssignmentFields() {
+      var assignTo = $('#assign-to').val();
+      var isEmployee = assignTo === 'employee';
+      var isLocation = assignTo === 'location';
+
+      $('#employee-assignment-field').toggle(isEmployee);
+      $('#location-assignment-field').toggle(isLocation);
+
+      $('#issuance-employee').prop('disabled', !isEmployee);
+      $('#issuance-location').prop('disabled', !isLocation);
+
+      if (!isEmployee) {
+        $('#issuance-employee').val(null);
+      }
+      if (!isLocation) {
+        $('#issuance-location').val(null);
+      }
+
+      setTimeout(function () {
+        if (isEmployee) {
+          fixSelectWidth($('#issuance-employee'));
+        }
+        if (isLocation) {
+          fixSelectWidth($('#issuance-location'));
+        }
+      }, 0);
+    }
+
+    $('#assign-to').on('change', toggleAssignmentFields);
+    toggleAssignmentFields();
+  });
 </script>
 @endsection
-

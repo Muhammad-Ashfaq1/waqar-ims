@@ -9,6 +9,7 @@ use App\Models\Asset;
 use App\Models\Stock;
 use App\Models\Issuance;
 use App\Models\User;
+use App\Models\Location;
 use Illuminate\Support\Facades\DB;
 
 
@@ -54,12 +55,17 @@ class FetchDataController extends Controller
     function AssetListIssuance() {
         $AssetList = Stock::with('GetAsset')->where('status', Stock::STATUS_IN_STOCK)->get();
         $empList = Employee::with('GetDepartment')->where('status', 'Active')->get();
-        return view('addIssuance', ['assetlist' => $AssetList, 'emplist' => $empList]);
+        $locations = Location::active()->orderBy('name')->get();
+        return view('addIssuance', [
+            'assetlist' => $AssetList,
+            'emplist' => $empList,
+            'locations' => $locations,
+        ]);
 
     }
     // Fetching issuance data from database and passing it to the issuanceInfo view
     function IssuanceList() {
-        $issuances = Issuance::with('getStock.getAsset', 'getEmployee.getDepartment')
+        $issuances = Issuance::with('getStock.getAsset', 'getEmployee.getDepartment', 'assignedLocation')
             ->whereNull('return_date')
             ->orderByDesc('issuance_date')
             ->orderByDesc('id')
@@ -68,7 +74,7 @@ class FetchDataController extends Controller
     }
 
     function ReturnList() {
-        $issuances = Issuance::with('getStock.getAsset', 'getEmployee.getDepartment')
+        $issuances = Issuance::with('getStock.getAsset', 'getEmployee.getDepartment', 'assignedLocation')
             ->whereNull('return_date')
             ->orderByDesc('issuance_date')
             ->orderByDesc('id')
@@ -77,7 +83,7 @@ class FetchDataController extends Controller
     }
 
     function IssuanceHistory(Request $request) {
-        $query = Issuance::with('getStock.getAsset', 'getEmployee.getDepartment');
+        $query = Issuance::with('getStock.getAsset', 'getEmployee.getDepartment', 'assignedLocation');
 
         if ($request->filled('employee_id')) {
             $query->where('employee_id', $request->employee_id);
@@ -124,7 +130,7 @@ class FetchDataController extends Controller
     }
     // Fetching user data from database and passing it to the userList view  (Not in use)  -- This is for admin only to view all users.  Not for regular users.  --
     function UserList() {
-        $users = User::select()->get();
+        $users = User::with('roles')->get();
         return view('user', ['userdata' => $users]);
     }
 
