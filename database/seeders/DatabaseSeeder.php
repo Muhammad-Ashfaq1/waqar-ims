@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\UserRole;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -11,17 +12,43 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(RolesAndPermissionsSeeder::class);
 
-        $admin = User::query()->firstOrCreate(
-            ['email' => 'admin@ims.lwmc.com'],
+        $users = [
             [
+                'email' => 'admin@ims.lwmc.com',
                 'name' => 'Admin',
-                'password' => 'password',
-                'is_active' => true,
-            ]
-        );
+                'first_name' => 'Admin',
+                'last_name' => null,
+                'role' => UserRole::SuperAdmin->value,
+            ],
+            [
+                'email' => 'inventory@ims.lwmc.com',
+                'name' => 'Inventory Manager',
+                'first_name' => 'Inventory',
+                'last_name' => 'Manager',
+                'role' => UserRole::InventoryManager->value,
+            ],
+            [
+                'email' => 'employee@ims.lwmc.com',
+                'name' => 'Employee User',
+                'first_name' => 'Employee',
+                'last_name' => 'User',
+                'role' => UserRole::Employee->value,
+            ],
+        ];
 
-        if ($admin->roles()->count() === 0) {
-            $admin->assignRole(\App\Enums\UserRole::SuperAdmin->value);
+        foreach ($users as $data) {
+            $user = User::query()->firstOrCreate(
+                ['email' => $data['email']],
+                [
+                    'name' => $data['name'],
+                    'first_name' => $data['first_name'],
+                    'last_name' => $data['last_name'],
+                    'password' => 'password',
+                    'is_active' => true,
+                ]
+            );
+
+            $user->syncRoles([$data['role']]);
         }
     }
 }
