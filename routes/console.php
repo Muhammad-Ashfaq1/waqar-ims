@@ -3,6 +3,8 @@
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote')->hourly();
+Artisan::command('permissions:sync {--seed-users}', function () {
+    $this->call('app:sync-permissions', [
+        '--seed-users' => $this->option('seed-users'),
+    ]);
+})->purpose('Synchronize roles and permissions');

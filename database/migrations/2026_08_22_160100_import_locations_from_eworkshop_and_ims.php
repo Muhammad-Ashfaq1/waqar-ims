@@ -12,7 +12,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        DB::statement("ALTER TABLE locations MODIFY location_type ENUM('town', 'workshop') NOT NULL DEFAULT 'town'");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE locations MODIFY location_type ENUM('town', 'workshop') NOT NULL DEFAULT 'town'");
+        }
 
         $now = now();
 

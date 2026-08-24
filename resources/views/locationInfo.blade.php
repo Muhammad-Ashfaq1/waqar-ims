@@ -14,11 +14,11 @@
           <div class="x_title">
             <h2>Locations / Workshops</h2>
             <ul class="nav navbar-right panel_toolbox">
-              @if(auth()->user()?->canManageBaseData())
+              @can('base-data.manage')
               <span class="input-group-btn">
                 <a href="{{ url('add-location') }}" class="btn btn-primary"><span style="color: white;">Add New</span></a>
               </span>
-              @endif
+              @endcan
             </ul>
             <div class="clearfix"></div>
           </div>
@@ -52,7 +52,7 @@
                   </td>
                   <td>{{ $data->created_at }}</td>
                   <td>
-                    @if(auth()->user()?->canManageBaseData())
+                    @can('base-data.manage')
                     <a href="{{ route('editLocation', $data->id) }}" class="btn btn-app" style="padding: 5px 5px; min-width: 39px; height: 31px;" title="Edit">
                       <i class="fa fa-edit"></i>
                     </a>
@@ -70,7 +70,7 @@
                     </form>
                     @else
                     —
-                    @endif
+                    @endcan
                   </td>
                 </tr>
                 @endforeach

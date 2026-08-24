@@ -68,18 +68,8 @@ class User extends Authenticatable
         return $this->hasRole(UserRole::Employee->value);
     }
 
-    public function canManageBaseData(): bool
+    public function isReadOnly(): bool
     {
-        return $this->is_active && $this->can(UserPermission::BaseDataManage->value);
-    }
-
-    public function canManageUsers(): bool
-    {
-        return $this->is_active && $this->can(UserPermission::UsersManage->value);
-    }
-
-    public function canManageInventory(): bool
-    {
-        return $this->is_active && $this->can(UserPermission::InventoryManage->value);
+        return $this->hasRole(UserRole::Employee->value);
     }
 }
