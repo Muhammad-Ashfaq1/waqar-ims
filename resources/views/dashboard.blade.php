@@ -13,6 +13,29 @@
       rx: 50% !important;
       ry: 50% !important;
   }
+  .ims-laptop-year-card { padding: 20px 24px; border-radius: 16px; background: #ffffff; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
+  .ims-laptop-year-card .ims-dash-panel-head { padding-bottom: 14px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
+  .ims-laptop-year-title { display: flex; align-items: center; gap: 14px; }
+  .ims-laptop-year-icon { width: 44px; height: 44px; border-radius: 12px; background: #f0eeff; color: #6c5ce7; display: inline-flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .ims-laptop-year-title h5 { margin: 0; font-size: 17px; font-weight: 700; color: #1e1e2d; line-height: 1.2; }
+  .ims-laptop-year-title small { color: #8a879b; font-size: 12px; }
+  .ims-laptop-year-filter-pill { position: relative; display: inline-flex; align-items: center; gap: 6px; background: #ffffff; border: 1px solid #e6e4f5; border-radius: 8px; padding: 6px 12px; color: #4d4a63; font-size: 11px; font-weight: 600; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+  .ims-laptop-year-filter-pill select { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 2; }
+  .ims-laptop-year-main { display: flex; align-items: center; gap: 24px; margin-top: 18px; flex-wrap: wrap; }
+  .ims-laptop-year-chart-container { flex: 1.2; min-width: 250px; display: flex; justify-content: center; align-items: center; position: relative; min-height: 270px; }
+  .ims-laptop-year-right { flex: 1; min-width: 220px; display: flex; flex-direction: column; gap: 14px; }
+  .ims-laptop-year-legend-box { background: #fdfdfd; border: 1px solid #e2e8f0; border-radius: 14px; padding: 6px 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.01); }
+  .ims-laptop-year-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; transition: opacity 0.2s ease; }
+  .ims-laptop-year-item:last-child { border-bottom: none; }
+  .ims-laptop-year-item-left { display: flex; align-items: center; gap: 10px; }
+  .ims-laptop-year-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+  .ims-laptop-year-label { font-weight: 600; color: #334155; }
+  .ims-laptop-year-item-right { display: flex; align-items: center; gap: 18px; }
+  .ims-laptop-year-count { font-weight: 700; color: #1e293b; min-width: 24px; text-align: right; }
+  .ims-laptop-year-pct { font-weight: 500; color: #64748b; min-width: 48px; text-align: right; font-size: 12px; }
+  .ims-laptop-year-total { background: #f0eeff; color: #6c5ce7; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; padding: 13px 20px; font-size: 14px; font-weight: 700; box-shadow: inset 0 0 0 1px rgba(108,92,231,0.08); }
+  .ims-laptop-year-total strong { font-size: 20px; font-weight: 800; }
+  @media (max-width: 767px) { .ims-laptop-year-main { flex-direction: column; } .ims-laptop-year-chart-container, .ims-laptop-year-right { width: 100%; } }
 </style>
 @endpush
 
@@ -43,6 +66,7 @@
         '2024' => $laptop_year5,
     ];
     $laptopYearMax = max(1, max($laptopYears));
+    $laptopYearTotal = array_sum($laptopYears);
     $desktopModels = [
         'HP Elite-Desk-800' => $d1,
         'Accer Veriton M275' => $d2,
@@ -356,7 +380,8 @@
           <table class="table ims-dash-table">
             <thead>
               <tr>
-                <th>Employee</th>
+                <th>Assigned Type</th>
+                <th>Assign To</th>
                 <th>Asset</th>
                 <th>Serial</th>
                 <th>Issue Date</th>
@@ -366,7 +391,8 @@
             <tbody>
               @forelse ($recentIssuances as $row)
               <tr>
-                <td>{{ optional($row->getEmployee)->emp_name ?? '-' }}</td>
+                <td>{{ $row->assignment_type_label }}</td>
+                <td>{{ optional($row->getEmployee)->emp_name ?? $row->location_display }}</td>
                 <td>{{ optional(optional($row->getStock)->getAsset)->type ?? '-' }}</td>
                 <td>
                   <a href="{{ url('issuance-history') }}?stock_id={{ $row->stock_id }}">
@@ -383,7 +409,7 @@
                 </td>
               </tr>
               @empty
-              <tr><td colspan="5">No issuance records yet.</td></tr>
+              <tr><td colspan="6">No issuance records yet.</td></tr>
               @endforelse
             </tbody>
           </table>
@@ -403,7 +429,8 @@
           <table class="table ims-dash-table">
             <thead>
               <tr>
-                <th>Employee</th>
+                <th>Assigned Type</th>
+                <th>Assign To</th>
                 <th>Asset</th>
                 <th>Serial</th>
                 <th>Return Date</th>
@@ -412,7 +439,8 @@
             <tbody>
               @forelse ($recentReturns as $row)
               <tr>
-                <td>{{ optional($row->getEmployee)->emp_name ?? '-' }}</td>
+                <td>{{ $row->assignment_type_label }}</td>
+                <td>{{ optional($row->getEmployee)->emp_name ?? $row->location_display }}</td>
                 <td>{{ optional(optional($row->getStock)->getAsset)->type ?? '-' }}</td>
                 <td>
                   <a href="{{ url('issuance-history') }}?stock_id={{ $row->stock_id }}">
@@ -422,7 +450,7 @@
                 <td>{{ optional($row->return_date)->format('d-M-Y') }}</td>
               </tr>
               @empty
-              <tr><td colspan="4">No returns recorded yet.</td></tr>
+              <tr><td colspan="5">No returns recorded yet.</td></tr>
               @endforelse
             </tbody>
           </table>
@@ -445,7 +473,8 @@
           <table class="table ims-dash-table">
             <thead>
               <tr>
-                <th>Employee</th>
+                <th>Assigned Type</th>
+                <th>Assign To</th>
                 <th>Department</th>
                 <th>Asset</th>
                 <th>Serial</th>
@@ -456,7 +485,8 @@
             <tbody>
               @forelse ($longestHeld as $row)
               <tr>
-                <td>{{ optional($row->getEmployee)->emp_name ?? '-' }}</td>
+                <td>{{ $row->assignment_type_label }}</td>
+                <td>{{ optional($row->getEmployee)->emp_name ?? $row->location_display }}</td>
                 <td>{{ optional(optional($row->getEmployee)->getDepartment)->dep_name ?? '-' }}</td>
                 <td>{{ optional(optional($row->getStock)->getAsset)->type ?? '-' }}</td>
                 <td>
@@ -468,7 +498,7 @@
                   <td>{{ $row->held_for }}</td>
               </tr>
               @empty
-              <tr><td colspan="6">No assets currently issued.</td></tr>
+              <tr><td colspan="7">No assets currently issued.</td></tr>
               @endforelse
             </tbody>
           </table>
@@ -507,28 +537,57 @@
   </div>
 
   <div class="row ims-dash-row">
-    <div class="col-md-4 col-sm-12 col-xs-12">
-      <div class="ims-glass-card ims-tone-primary ims-dash-card-fill">
+    <div class="col-md-6 col-sm-12 col-xs-12">
+      <div class="ims-glass-card ims-tone-primary ims-dash-card-fill ims-laptop-year-card">
         <div class="ims-dash-panel-head">
-          <div>
-            <h5>Laptops Year Wise</h5>
-            <small>By purchase date</small>
+          <div class="ims-laptop-year-title">
+            <span class="ims-laptop-year-icon"><i class="fa fa-laptop"></i></span>
+            <div>
+              <h5>Laptops Year Wise</h5>
+              <small>By purchase date</small>
+            </div>
+          </div>
+          <div class="ims-laptop-year-filter-pill">
+            <i class="fa fa-calendar"></i>
+            <span id="laptop-year-label-text">All Years</span>
+            <i class="fa fa-angle-down" style="margin-left: 2px;"></i>
+            <select id="laptop-year-select">
+              <option value="all">All Years</option>
+              @foreach ($laptopYears as $label => $count)
+                <option value="{{ $label }}">{{ $label }} ({{ $count }})</option>
+              @endforeach
+            </select>
           </div>
         </div>
-        <div class="ims-dash-panel-body">
-          @foreach ($laptopYears as $label => $count)
-            <div class="ims-dash-meter">
-              <div class="ims-dash-meter-label">{{ $label }}</div>
-              <div class="ims-dash-meter-track">
-                <span class="ims-dash-meter-fill" style="width: {{ round(($count / $laptopYearMax) * 100) }}%;"></span>
-              </div>
-              <div class="ims-dash-meter-value">{{ $count }}</div>
+        <div class="ims-dash-panel-body ims-laptop-year-main">
+          <div class="ims-laptop-year-chart-container">
+            <div id="chartLaptopYear" style="width: 100%; min-height: 290px;"></div>
+          </div>
+          <div class="ims-laptop-year-right">
+            <div class="ims-laptop-year-legend-box">
+              @php $laptopYearColors = ['#7B61FF', '#4F80FF', '#31D0AA', '#FFB020', '#9DA4B4']; @endphp
+              @foreach ($laptopYears as $label => $count)
+                <div class="ims-laptop-year-item" data-year="{{ $label }}">
+                  <div class="ims-laptop-year-item-left">
+                    <span class="ims-laptop-year-dot" style="background: {{ $laptopYearColors[$loop->index] }};"></span>
+                    <span class="ims-laptop-year-label">{{ $label }}</span>
+                  </div>
+                  <div class="ims-laptop-year-item-right">
+                    <span class="ims-laptop-year-count">{{ $count }}</span>
+                    <span class="ims-laptop-year-pct">{{ $laptopYearTotal ? number_format(($count / $laptopYearTotal) * 100, 1) : 0 }}%</span>
+                  </div>
+                </div>
+              @endforeach
             </div>
-          @endforeach
+            <div class="ims-laptop-year-total">
+              <span>Total Laptops</span>
+              <strong id="laptop-year-total-count">{{ $laptopYearTotal }}</strong>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    <div class="col-md-8 col-sm-12 col-xs-12">
+    <div class="col-md-6 col-sm-12 col-xs-12">
       <div class="ims-glass-card ims-tone-info ims-dash-card-fill">
         <div class="ims-dash-panel-head">
           <div>
@@ -635,6 +694,112 @@ $(document).ready(function () {
       }).render();
     }
   } catch(e) { console.error('chartStatus error:', e); }
+
+  try {
+    var elLaptopYear = document.getElementById('chartLaptopYear');
+    if (elLaptopYear) {
+      var allLaptopSeries = {!! json_encode(array_values($laptopYears)) !!};
+      var yearLabels = {!! json_encode(array_keys($laptopYears)) !!};
+      var laptopYearTotal = {{ (int) $laptopYearTotal }};
+      var chartColors = ['#7B61FF', '#4F80FF', '#31D0AA', '#FFB020', '#9DA4B4'];
+
+      var laptopChart = new ApexCharts(elLaptopYear, {
+        chart: { type: 'donut', height: 260, fontFamily: 'inherit' },
+        series: laptopYearTotal ? allLaptopSeries : [1],
+        labels: yearLabels,
+        colors: laptopYearTotal ? chartColors : ['#e8e7ef'],
+        stroke: { width: 2, colors: ['#ffffff'] },
+        dataLabels: {
+          enabled: true,
+          style: { fontSize: '11px', fontFamily: 'inherit', fontWeight: '600', colors: ['#ffffff'] },
+          dropShadow: { enabled: true, top: 1, left: 1, blur: 1, color: '#000000', opacity: 0.35 },
+          formatter: function(val, opts) {
+            if (!laptopYearTotal) return '';
+            var count = opts.w.config.series[opts.seriesIndex];
+            return count > 0 ? count + ' (' + val.toFixed(1) + '%)' : '';
+          }
+        },
+        legend: { show: false },
+        tooltip: {
+          y: {
+            formatter: function(value, opts) {
+              if (!laptopYearTotal) return '0 laptops';
+              var pct = opts.w.globals.seriesPercent[opts.seriesIndex][0].toFixed(1);
+              return value + ' laptops (' + pct + '%)';
+            }
+          }
+        },
+        plotOptions: {
+          pie: {
+            donut: {
+              size: '62%',
+              labels: {
+                show: true,
+                name: {
+                  show: true,
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  color: '#8a879b',
+                  offsetY: 18,
+                  formatter: function() { return 'Total Laptops'; }
+                },
+                value: {
+                  show: true,
+                  fontSize: '24px',
+                  fontWeight: 700,
+                  color: '#1e1e2d',
+                  offsetY: -10,
+                  formatter: function() { return laptopYearTotal; }
+                },
+                total: {
+                  show: true,
+                  label: 'Total Laptops',
+                  color: '#8a879b',
+                  fontSize: '11px',
+                  formatter: function() { return laptopYearTotal; }
+                }
+              }
+            }
+          }
+        }
+      });
+      laptopChart.render();
+
+      // Dynamic Dropdown Filter Handler
+      $('#laptop-year-select').on('change', function() {
+        var val = $(this).val();
+        $('#laptop-year-label-text').text(val === 'all' ? 'All Years' : val);
+
+        if (val === 'all') {
+          laptopChart.updateOptions({
+            series: laptopYearTotal ? allLaptopSeries : [1],
+            labels: yearLabels
+          });
+          $('.ims-laptop-year-item').css('opacity', '1').show();
+          $('#laptop-year-total-count').text(laptopYearTotal);
+        } else {
+          var idx = yearLabels.indexOf(val);
+          if (idx !== -1) {
+            var selectedCount = allLaptopSeries[idx];
+            var filteredSeries = allLaptopSeries.map(function(c, i) {
+              return i === idx ? c : 0;
+            });
+            laptopChart.updateOptions({
+              series: filteredSeries
+            });
+            $('.ims-laptop-year-item').each(function() {
+              if ($(this).attr('data-year') === val) {
+                $(this).css('opacity', '1');
+              } else {
+                $(this).css('opacity', '0.35');
+              }
+            });
+            $('#laptop-year-total-count').text(selectedCount);
+          }
+        }
+      });
+    }
+  } catch(e) { console.error('chartLaptopYear error:', e); }
 
   // ── 3. Category Radial Donut Charts ──
   try {
