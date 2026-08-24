@@ -42,14 +42,13 @@ class FetchDataController extends Controller
 
     //Fetch Stock List data rom database and passing it to the stockList view
     function FetchStockList(){
-        $stock = Stock::with(['GetAsset', 'location'])->where('status','In Stock')->get();
+        $stock = Stock::with('GetAsset')->where('status','In Stock')->get();
         return view('stockList', ['stockdata' => $stock]);
     }
     //Fetch Asset List data rom database and passing it to the stockList Dropdown view
     function FetchAssetTypeList() {
         $AssetList = DB::table('assets')->select()->get();
-        $locations = Location::active()->orderBy('name')->get();
-        return view('addStock', ['assetlist' => $AssetList, 'locations' => $locations]);
+        return view('addStock', ['assetlist' => $AssetList]);
 
     }
     //Fetch Asset List data rom database and passing it to the asset issuance view

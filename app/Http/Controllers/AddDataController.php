@@ -95,7 +95,6 @@ class AddDataController extends Controller
             'purchase_date' =>'required | date',
             'expiry_date' =>'required | date',
             'status' =>'required',
-            'location_id' => 'nullable|exists:locations,id',
         ],[
             'assettype.required' => 'Asset Type is required',
            'model.required' => 'Model is required',
@@ -107,7 +106,6 @@ class AddDataController extends Controller
             'expiry_date.required' => 'Expiry Date is must',
             'expiry_date.date' => 'Must be a valid date',
            'status.required' => 'Status is required',
-           'location_id.exists' => 'Selected location is invalid',
         ]);
         $insertStock = [
             'asset_id' => $request->input('assettype'),
@@ -120,7 +118,6 @@ class AddDataController extends Controller
             'purchase_date' => $request->input('purchase_date'),
             'expiry_date' => $request->input('expiry_date'),
             'status' => $request->input('status'),
-            'location_id' => $request->input('location_id') ?: null,
             'created_at' => Carbon::now()
         ];
         $response = Stock::insert($insertStock);
@@ -179,9 +176,6 @@ class AddDataController extends Controller
             ]);
 
             $stockUpdate = ['status' => Stock::STATUS_ISSUED];
-            if ($location) {
-                $stockUpdate['location_id'] = $location->id;
-            }
             Stock::where('id', $stock->id)->update($stockUpdate);
         });
 

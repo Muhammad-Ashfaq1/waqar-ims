@@ -48,7 +48,6 @@
                     <th>Purchase Date</th>
                     <th>Expiry Date</th>
                     <th>Status</th>
-                    <th>Location</th>
                     <th>Created</th>
                     <th>Action</th>
 
@@ -68,7 +67,6 @@
                     <td>{{$data->purchase_date}}</td>
                     <td>{{$data->expiry_date}}</td>
                     <td>{{$data->status}}</td>
-                    <td>{{ optional($data->location)->name ?? '—' }}</td>
                     <td>{{$data->created_at}}</td>
                     <td>
                       @if(auth()->user()?->canManageInventory())

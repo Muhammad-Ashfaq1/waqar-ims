@@ -41,25 +41,21 @@ class UpdateDataController extends Controller
     }
     //this function get ID of Stock.
     public function GetStockID ($id){
-        $stockID = Stock::with(['GetAsset', 'location'])->find($id);
-        $locations = Location::active()->orderBy('name')->get();
-        return view('updateStock', ['stockID' => $stockID, 'locations' => $locations]);
+        $stockID = Stock::with('GetAsset')->find($id);
+        return view('updateStock', ['stockID' => $stockID]);
     }
     //this function update stock data.
     public function UpdateStock(Request $request, $id){
         $request->validate([
             'status' => 'required',
-            'location_id' => 'nullable|exists:locations,id',
         ], [
             'status.required' => 'Status is required',
-            'location_id.exists' => 'Selected location is invalid',
         ]);
 
         $status = $request->input('status');
 
         $stock = Stock::find($id);
         $stock->status = $status;
-        $stock->location_id = $request->input('location_id') ?: null;
         $stock->save();
 
         if ($status === Stock::STATUS_IN_STOCK) {
@@ -116,10 +112,6 @@ class UpdateDataController extends Controller
         $issuance->location = $location?->name;
         $issuance->assignment_type = $request->input('assign_to');
         $issuance->save();
-
-        if ($issuance->stock_id && $location) {
-            Stock::where('id', $issuance->stock_id)->update(['location_id' => $location->id]);
-        }
 
         toastr()->closeButton(true)->addSuccess('Issuance record has been updated');
         return redirect('issuance');
