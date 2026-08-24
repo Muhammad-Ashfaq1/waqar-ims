@@ -80,12 +80,12 @@
             </p>
           </div>
           <div class="ims-glass-intro-actions">
-            @if(auth()->user()?->canManageInventory())
+            @can('inventory.manage')
             <a href="{{ url('addIssuance') }}" class="ims-btn ims-btn-primary">
               <i class="fa fa-plus" aria-hidden="true"></i> New Issuance
             </a>
             <a href="{{ url('stock-return') }}" class="ims-btn ims-btn-ghost">Return Stock</a>
-            @endif
+            @endcan
             <a href="{{ url('issuance-history') }}" class="ims-glass-pill ims-tone-success">
               <i class="fa fa-line-chart" aria-hidden="true"></i>
               {{ now()->format('M Y') }}: {{ $issuedThisMonth }} issued / {{ $returnedThisMonth }} returned

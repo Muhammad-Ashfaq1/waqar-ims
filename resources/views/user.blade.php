@@ -16,11 +16,11 @@
             <div class="x_title">
               <h2>Users</h2>
               <ul class="nav navbar-right panel_toolbox">
-                @if(auth()->user()?->canManageUsers())
+                @can('users.manage')
                 <span class="input-group-btn">
                     <a href="{{url('add-user')}}" class="btn btn-primary"><span style="color: white;">Add New</span></a>
                   </span>
-                @endif
+                @endcan
               </ul>
               <div class="clearfix"></div>
             </div>
@@ -54,13 +54,13 @@
                     </td>
                     <td>{{$data->created_at}}</td>
                     <td>
-                      @if(auth()->user()?->canManageUsers())
+                      @can('users.manage')
                       <a href="{{ route('editUser', $data->id) }}" class="btn btn-app" style="padding: 5px 5px; min-width: 39px; height: 31px;" title="Edit user">
                         <i class="fa fa-edit"></i>
                       </a>
                       @else
                       —
-                      @endif
+                      @endcan
                     </td>
                   </tr>
                   @endforeach

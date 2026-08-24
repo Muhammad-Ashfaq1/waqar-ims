@@ -10,15 +10,20 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        $this->call(RolesAndPermissionsSeeder::class);
+        $this->call([
+            PermissionSeeder::class,
+            RoleSeeder::class,
+            RolePermissionSeeder::class,
+        ]);
 
         $users = [
             [
                 'email' => 'admin@ims.lwmc.com',
-                'name' => 'Admin',
-                'first_name' => 'Admin',
-                'last_name' => null,
+                'name' => 'Super Admin',
+                'first_name' => 'Super',
+                'last_name' => 'Admin',
                 'role' => UserRole::SuperAdmin->value,
+                'password' => 'SuperAdmin@2026$!',
             ],
             [
                 'email' => 'inventory@ims.lwmc.com',
@@ -26,24 +31,26 @@ class DatabaseSeeder extends Seeder
                 'first_name' => 'Inventory',
                 'last_name' => 'Manager',
                 'role' => UserRole::InventoryManager->value,
+                'password' => 'Inv#Mgr9824$Kz!',
             ],
             [
                 'email' => 'employee@ims.lwmc.com',
-                'name' => 'Employee User',
-                'first_name' => 'Employee',
-                'last_name' => 'User',
+                'name' => 'Read Only User',
+                'first_name' => 'Read',
+                'last_name' => 'Only',
                 'role' => UserRole::Employee->value,
+                'password' => 'ReadOnly!8391#Tv&',
             ],
         ];
 
         foreach ($users as $data) {
-            $user = User::query()->firstOrCreate(
+            $user = User::query()->updateOrCreate(
                 ['email' => $data['email']],
                 [
                     'name' => $data['name'],
                     'first_name' => $data['first_name'],
                     'last_name' => $data['last_name'],
-                    'password' => 'password',
+                    'password' => $data['password'],
                     'is_active' => true,
                 ]
             );

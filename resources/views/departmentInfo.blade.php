@@ -29,9 +29,9 @@
                     <h2>All Departments</h2>
                     <ul class="nav navbar-right panel_toolbox">
                         <span class="input-group-btn">
-                            @if(auth()->user()?->canManageBaseData())
+                            @can('base-data.manage')
                             <a href="{{url('addDep')}}" class="btn btn-primary"><span style="color: white;">Add New</span></a>
-                            @endif
+                            @endcan
                           </span>
                       </ul>
                     <div class="clearfix"></div>

@@ -6,9 +6,9 @@
 
         <li><a><i class="fa fa-edit"></i> Base Data <span class="fa fa-chevron-down"></span></a>
           <ul class="nav child_menu">
-            @if(auth()->user()?->canManageUsers())
+            @can('users.manage')
             <li><a href="{{url('userlist')}}">Users</a></li>
-            @endif
+            @endcan
             <li><a href="{{url('departmentinfo')}}">Departments</a></li>
             <li><a href="{{url('employeeinfo')}}">Employee</a></li>
             <li><a href="{{url('locationinfo')}}">Locations</a></li>

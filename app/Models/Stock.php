@@ -9,6 +9,8 @@ class Stock extends Model
 {
     use HasFactory;
 
+    protected $guarded = [];
+
     function getAsset(){
         return $this->belongsTo('App\Models\Asset', 'asset_id');
     }
