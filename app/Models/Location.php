@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\LocationType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Location extends Model
@@ -42,6 +43,11 @@ class Location extends Model
     public function issuances(): HasMany
     {
         return $this->hasMany(Issuance::class);
+    }
+
+    public function departments(): BelongsToMany
+    {
+        return $this->belongsToMany(Department::class)->withTimestamps();
     }
 
     public function getTypeLabelAttribute(): string

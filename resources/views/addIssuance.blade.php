@@ -100,6 +100,7 @@
                       @enderror
                     </div>
                   </div>
+                  @include('common.location-department-field', ['selectedDepartmentId' => null])
                 <div class="ln_solid"></div>
                 <div class="form-group">
                   <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
@@ -136,6 +137,7 @@
       var isEmployee = assignTo === 'employee';
       var isLocation = assignTo === 'location';
       var needsLocation = isEmployee || isLocation;
+      var needsDepartment = isLocation;
 
       $('#employee-assignment-field').toggle(isEmployee);
       $('#location-assignment-field').toggle(needsLocation);
@@ -149,6 +151,7 @@
       if (!needsLocation) {
         $('#issuance-location').val(null);
       }
+      refreshIssuanceDepartments(needsDepartment);
 
       setTimeout(function () {
         if (isEmployee) {
@@ -161,6 +164,10 @@
     }
 
     $('#assign-to').on('change', toggleAssignmentFields);
+    $('#issuance-location').on('change', function () {
+      window.selectedIssuanceDepartment = null;
+      refreshIssuanceDepartments($('#assign-to').val() === 'location');
+    });
     toggleAssignmentFields();
   });
 </script>

@@ -200,6 +200,14 @@ describe('Super Admin Capabilities', function () {
     it('can perform inventory operations (add stock, issuance, return)', function () {
         $asset = Asset::create(['type' => 'Laptop']);
         $dep = Department::create(['dep_name' => 'IT']);
+        $loc = Location::create([
+            'name' => 'Headquarters',
+            'slug' => 'headquarters',
+            'location_type' => 'town',
+            'is_active' => true,
+        ]);
+        $loc->departments()->attach($dep->id);
+
         $emp = Employee::create([
             'emp_name' => 'John Doe',
             'designation' => 'Engineer',
@@ -225,6 +233,7 @@ describe('Super Admin Capabilities', function () {
         $this->post('/addIssuance', [
             'assign_to' => 'employee',
             'employee_id' => $emp->id,
+            'location_id' => $loc->id,
             'stock_id' => $stock->id,
             'issuance_date' => '2026-02-01',
         ])->assertRedirect('addIssuance');
@@ -254,6 +263,14 @@ describe('Inventory Manager Capabilities & Restrictions', function () {
     it('can add stock and perform issuance and returns', function () {
         $asset = Asset::create(['type' => 'Desktop']);
         $dep = Department::create(['dep_name' => 'Operations']);
+        $loc = Location::create([
+            'name' => 'Central Workshop',
+            'slug' => 'central-workshop',
+            'location_type' => 'workshop',
+            'is_active' => true,
+        ]);
+        $loc->departments()->attach($dep->id);
+
         $emp = Employee::create([
             'emp_name' => 'Jane Smith',
             'designation' => 'Supervisor',
@@ -279,6 +296,7 @@ describe('Inventory Manager Capabilities & Restrictions', function () {
         $this->post('/addIssuance', [
             'assign_to' => 'employee',
             'employee_id' => $emp->id,
+            'location_id' => $loc->id,
             'stock_id' => $stock->id,
             'issuance_date' => '2026-02-15',
         ])->assertRedirect('addIssuance');

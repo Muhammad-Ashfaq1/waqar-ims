@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use App\Enums\UserRole;
 use Illuminate\Validation\Rules\Enum;
+use Illuminate\Validation\Rule;
 
 
 
@@ -134,6 +135,13 @@ class AddDataController extends Controller
             'stock_id' => 'required|exists:stocks,id',
             'issuance_date' => 'required|date',
             'location_id' => 'required|exists:locations,id',
+            'department_id' => [
+                'required_if:assign_to,location',
+                'nullable',
+                Rule::exists('department_location', 'department_id')->where(
+                    fn ($query) => $query->where('location_id', $request->input('location_id'))
+                ),
+            ],
         ],[
             'assign_to.required' => 'Choose a employee or location',
             'assign_to.in' => 'Choose a employee or location',
@@ -145,6 +153,8 @@ class AddDataController extends Controller
             'issuance_date.date' => 'Please enter a valid issuance date',
             'location_id.required' => 'Please choose a location',
             'location_id.exists' => 'Selected location is invalid',
+            'department_id.required_if' => 'Please choose a department',
+            'department_id.exists' => 'Selected department is not available at this location',
         ]);
         $stock = Stock::find($request->input('stock_id'));
         if (!$stock || $stock->status !== Stock::STATUS_IN_STOCK) {
@@ -168,6 +178,7 @@ class AddDataController extends Controller
                 'employee_id' => $request->input('assign_to') === 'employee' ? $request->input('employee_id') : null,
                 'issuance_date' => $request->input('issuance_date'),
                 'location_id' => $location->id,
+                'department_id' => $request->input('assign_to') === 'location' ? $request->input('department_id') : null,
                 'location' => $location->name,
                 'assignment_type' => $request->input('assign_to'),
                 'created_at' => Carbon::now(),

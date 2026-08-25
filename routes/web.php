@@ -9,6 +9,7 @@ use App\Http\Middleware\Login;
 use App\Http\Controllers\UpdateDataController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\LocationDepartmentController;
 use App\Enums\UserPermission;
 
 Route::get('/', function () {
@@ -38,6 +39,8 @@ Route::middleware(Login::class)->group(function () {
 });
 
 Route::middleware([Login::class, 'permission:'.UserPermission::BaseDataManage->value])->group(function () {
+    Route::get('location-departments', [LocationDepartmentController::class, 'create']);
+    Route::post('location-departments', [LocationDepartmentController::class, 'store']);
     Route::controller(AddDataController::class)->group(function () {
         Route::post('addDepartment', 'AddDepartment');
         Route::post('addEmployee', 'addEmployee');

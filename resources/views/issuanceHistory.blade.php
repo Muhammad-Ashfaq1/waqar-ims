@@ -144,7 +144,7 @@
                     <td>{{ $data->assignment_type_label }}</td>
                     <td>{{ optional($data->getEmployee)->emp_name ?? $data->location_display }}</td>
                     <td>{{ optional($data->getEmployee)->designation ?? '-' }}</td>
-                    <td>{{ optional(optional($data->getEmployee)->getDepartment)->dep_name ?? '-' }}</td>
+                    <td>{{ $data->department_display }}</td>
                     <td>{{ optional(optional($data->getStock)->getAsset)->type ?? '-' }}</td>
                     <td>{{ optional($data->getStock)->model ?? '-' }}</td>
                     <td>{{ optional($data->getStock)->serial_no ?? '-' }}</td>
