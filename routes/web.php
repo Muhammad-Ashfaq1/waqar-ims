@@ -36,10 +36,12 @@ Route::middleware(Login::class)->group(function () {
     });
 
     Route::get('locationinfo', [LocationController::class, 'index']);
+    Route::get('location-departments', [LocationDepartmentController::class, 'index'])->name('locationDepartments');
 });
 
 Route::middleware([Login::class, 'permission:'.UserPermission::BaseDataManage->value])->group(function () {
-    Route::get('location-departments', [LocationDepartmentController::class, 'create']);
+    Route::get('add-location-department', [LocationDepartmentController::class, 'create'])->name('addLocationDepartment');
+    Route::get('edit-location-department/{id}', [LocationDepartmentController::class, 'edit'])->name('editLocationDepartment');
     Route::post('location-departments', [LocationDepartmentController::class, 'store']);
     Route::controller(AddDataController::class)->group(function () {
         Route::post('addDepartment', 'AddDepartment');

@@ -152,6 +152,20 @@ describe('Super Admin Capabilities', function () {
         $this->assertDatabaseHas('locations', ['name' => 'Outfall Workshop']);
     });
 
+    it('can assign multiple departments to a location at once', function () {
+        $loc = Location::create(['name' => 'Model Town', 'slug' => 'model-town', 'is_active' => true]);
+        $dep1 = Department::create(['dep_name' => 'Transport']);
+        $dep2 = Department::create(['dep_name' => 'Finance']);
+
+        $response = $this->post('/location-departments', [
+            'location_id' => $loc->id,
+            'department_ids' => [$dep1->id, $dep2->id],
+        ]);
+
+        $response->assertRedirect('location-departments');
+        expect($loc->fresh()->departments->pluck('id')->all())->toEqualCanonicalizing([$dep1->id, $dep2->id]);
+    });
+
     it('can create new users and assign any role', function () {
         $response = $this->post('/add-user', [
             'first_name' => 'Sara',
@@ -336,6 +350,7 @@ describe('Inventory Manager Capabilities & Restrictions', function () {
         $this->get('/departmentinfo')->assertOk();
         $this->get('/employeeinfo')->assertOk();
         $this->get('/locationinfo')->assertOk();
+        $this->get('/location-departments')->assertOk();
         $this->get('/stocklist')->assertOk();
         $this->get('/issuance')->assertOk();
     });
@@ -352,6 +367,7 @@ describe('Read Only User Restrictions', function () {
         $this->get('/departmentinfo')->assertOk();
         $this->get('/employeeinfo')->assertOk();
         $this->get('/locationinfo')->assertOk();
+        $this->get('/location-departments')->assertOk();
         $this->get('/assetTypeInfo')->assertOk();
         $this->get('/stocklist')->assertOk();
         $this->get('/issuance')->assertOk();
@@ -373,6 +389,8 @@ describe('Read Only User Restrictions', function () {
         $this->post('/addEmployee', [])->assertForbidden();
         $this->get('/add-location')->assertForbidden();
         $this->post('/add-location', [])->assertForbidden();
+        $this->get('/add-location-department')->assertForbidden();
+        $this->post('/location-departments', [])->assertForbidden();
     });
 
     it('cannot access inventory management (add stock, issuance, return)', function () {
@@ -386,6 +404,7 @@ describe('Read Only User Restrictions', function () {
         $this->get('/departmentinfo')->assertDontSee('addDep');
         $this->get('/employeeinfo')->assertDontSee('addEmployee');
         $this->get('/locationinfo')->assertDontSee('add-location');
+        $this->get('/location-departments')->assertDontSee('add-location-department');
         $this->get('/assetTypeInfo')->assertDontSee('addAsset');
         $this->get('/stocklist')->assertDontSee('addStock');
         $this->get('/issuance')->assertDontSee('addIssuance');

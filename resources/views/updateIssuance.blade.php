@@ -78,7 +78,7 @@
                           <option value="">--Select--</option>
                           @foreach ($locations as $location)
                             <option value="{{ $location->id }}" {{ (string) old('location_id', $issuanceID->location_id) === (string) $location->id ? 'selected' : '' }}>
-                              {{ $location->name }} ({{ $location->type_label }})
+                              {{ $location->name }}
                             </option>
                           @endforeach
                         </select>

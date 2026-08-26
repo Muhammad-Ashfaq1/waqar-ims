@@ -10,11 +10,50 @@ use Illuminate\View\View;
 
 class LocationDepartmentController extends Controller
 {
-    public function create(): View
+    public function index(Request $request): View
     {
+        $locations = Location::active()->with('departments')->orderBy('name')->get();
+        $selectedLocationId = $request->integer('location_id');
+
         return view('locationDepartment', [
-            'locations' => Location::active()->orderBy('name')->get(),
-            'departments' => Department::orderBy('dep_name')->get(),
+            'locations' => $locations,
+            'selectedLocationId' => $selectedLocationId,
+        ]);
+    }
+
+    public function create(Request $request): View
+    {
+        $locations = Location::active()->with('departments')->orderBy('name')->get();
+        $departments = Department::orderBy('dep_name')->get();
+        $selectedLocationId = $request->integer('location_id') ?: old('location_id');
+
+        $locationDepartmentMap = $locations->mapWithKeys(function (Location $loc) {
+            return [$loc->id => $loc->departments->pluck('id')->all()];
+        })->all();
+
+        return view('addLocationDepartment', [
+            'locations' => $locations,
+            'departments' => $departments,
+            'locationDepartmentMap' => $locationDepartmentMap,
+            'selectedLocationId' => $selectedLocationId,
+        ]);
+    }
+
+    public function edit($id): View
+    {
+        $location = Location::findOrFail($id);
+        $locations = Location::active()->with('departments')->orderBy('name')->get();
+        $departments = Department::orderBy('dep_name')->get();
+
+        $locationDepartmentMap = $locations->mapWithKeys(function (Location $loc) {
+            return [$loc->id => $loc->departments->pluck('id')->all()];
+        })->all();
+
+        return view('addLocationDepartment', [
+            'locations' => $locations,
+            'departments' => $departments,
+            'locationDepartmentMap' => $locationDepartmentMap,
+            'selectedLocationId' => $location->id,
         ]);
     }
 
@@ -22,17 +61,17 @@ class LocationDepartmentController extends Controller
     {
         $data = $request->validate([
             'location_id' => ['required', 'exists:locations,id'],
-            'department_id' => ['required', 'exists:departments,id'],
+            'department_ids' => ['nullable', 'array'],
+            'department_ids.*' => ['exists:departments,id'],
         ]);
 
         $location = Location::findOrFail($data['location_id']);
-        $attached = $location->departments()->syncWithoutDetaching([$data['department_id']]);
+        $departmentIds = $data['department_ids'] ?? [];
 
-        if ($attached) {
-            toastr()->closeButton(true)->addSuccess('Department has been linked to the location.');
-        } else {
-            toastr()->info('This department is already linked to the location.');
-        }
+        $location->departments()->sync($departmentIds);
+
+        $count = count($departmentIds);
+        toastr()->closeButton(true)->addSuccess("Successfully updated departments for '{$location->name}' ({$count} assigned).");
 
         return redirect('location-departments');
     }
