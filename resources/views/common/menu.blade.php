@@ -12,6 +12,7 @@
             <li><a href="{{url('departmentinfo')}}">Departments</a></li>
             <li><a href="{{url('employeeinfo')}}">Employee</a></li>
             <li><a href="{{url('locationinfo')}}">Locations</a></li>
+            <li><a href="{{url('location-departments')}}">Location Department</a></li>
           </ul>
         </li>
 

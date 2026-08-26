@@ -12,6 +12,7 @@ use App\Models\Location;
 use Illuminate\Support\Facades\Auth;
 use App\Enums\UserRole;
 use Illuminate\Validation\Rules\Enum;
+use Illuminate\Validation\Rule;
 
 class UpdateDataController extends Controller
 {
@@ -72,10 +73,13 @@ class UpdateDataController extends Controller
         $issueID = Issuance::with('GetStock.GetAsset', 'GetEmployee.GetDepartment', 'assignedLocation')->find($id);
         $emp = Employee::with('GetDepartment')->get();
         $locations = Location::active()->orderBy('name')->get();
+        $locationDepartments = Location::active()->with('departments:id,dep_name')->get()
+            ->mapWithKeys(fn (Location $location) => [$location->id => $location->departments->values()]);
         return view('updateIssuance', [
             'issuanceID' => $issueID,
             'emp' => $emp,
             'locations' => $locations,
+            'locationDepartments' => $locationDepartments,
         ]);
     }
     //this function update issuance data.
@@ -83,20 +87,27 @@ class UpdateDataController extends Controller
         $request->validate([
             'assign_to' => 'required|in:employee,location',
             'employee_id' => 'required_if:assign_to,employee|nullable|exists:employees,id',
-            'location_id' => 'required_if:assign_to,location|nullable|exists:locations,id',
+            'location_id' => 'required|exists:locations,id',
+            'department_id' => [
+                'required_if:assign_to,location',
+                'nullable',
+                Rule::exists('department_location', 'department_id')->where(
+                    fn ($query) => $query->where('location_id', $request->input('location_id'))
+                ),
+            ],
         ], [
             'assign_to.required' => 'Choose a employee or location',
             'assign_to.in' => 'Choose a employee or location',
             'employee_id.required_if' => 'Please choose a employee',
             'employee_id.exists' => 'Selected employee is invalid',
-            'location_id.required_if' => 'Please choose a location',
+            'location_id.required' => 'Please choose a location',
             'location_id.exists' => 'Selected location is invalid',
+            'department_id.required_if' => 'Please choose a department',
+            'department_id.exists' => 'Selected department is not available at this location',
         ]);
 
-        $location = $request->input('assign_to') === 'location'
-            ? Location::find($request->input('location_id'))
-            : null;
-        if ($request->input('assign_to') === 'location' && ! $location) {
+        $location = Location::find($request->input('location_id'));
+        if (! $location) {
             toastr()->error('Selected location is invalid');
             return redirect()->back()->withInput();
         }
@@ -108,8 +119,9 @@ class UpdateDataController extends Controller
         }
 
         $issuance->employee_id = $request->input('assign_to') === 'employee' ? $request->input('employee_id') : null;
-        $issuance->location_id = $location?->id;
-        $issuance->location = $location?->name;
+        $issuance->location_id = $location->id;
+        $issuance->department_id = $request->input('assign_to') === 'location' ? $request->input('department_id') : null;
+        $issuance->location = $location->name;
         $issuance->assignment_type = $request->input('assign_to');
         $issuance->save();
 

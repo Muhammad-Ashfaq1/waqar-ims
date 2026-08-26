@@ -56,16 +56,19 @@ class FetchDataController extends Controller
         $AssetList = Stock::with('GetAsset')->where('status', Stock::STATUS_IN_STOCK)->get();
         $empList = Employee::with('GetDepartment')->where('status', 'Active')->get();
         $locations = Location::active()->orderBy('name')->get();
+        $locationDepartments = Location::active()->with('departments:id,dep_name')->get()
+            ->mapWithKeys(fn (Location $location) => [$location->id => $location->departments->values()]);
         return view('addIssuance', [
             'assetlist' => $AssetList,
             'emplist' => $empList,
             'locations' => $locations,
+            'locationDepartments' => $locationDepartments,
         ]);
 
     }
     // Fetching issuance data from database and passing it to the issuanceInfo view
     function IssuanceList() {
-        $issuances = Issuance::with('getStock.getAsset', 'getEmployee.getDepartment', 'assignedLocation')
+        $issuances = Issuance::with('getStock.getAsset', 'getEmployee.getDepartment', 'assignedLocation', 'assignedDepartment')
             ->whereNull('return_date')
             ->orderByDesc('issuance_date')
             ->orderByDesc('id')
@@ -74,7 +77,7 @@ class FetchDataController extends Controller
     }
 
     function ReturnList() {
-        $issuances = Issuance::with('getStock.getAsset', 'getEmployee.getDepartment', 'assignedLocation')
+        $issuances = Issuance::with('getStock.getAsset', 'getEmployee.getDepartment', 'assignedLocation', 'assignedDepartment')
             ->whereNull('return_date')
             ->orderByDesc('issuance_date')
             ->orderByDesc('id')
@@ -83,7 +86,7 @@ class FetchDataController extends Controller
     }
 
     function IssuanceHistory(Request $request) {
-        $query = Issuance::with('getStock.getAsset', 'getEmployee.getDepartment', 'assignedLocation');
+        $query = Issuance::with('getStock.getAsset', 'getEmployee.getDepartment', 'assignedLocation', 'assignedDepartment');
 
         if ($request->filled('employee_id')) {
             $query->where('employee_id', $request->employee_id);

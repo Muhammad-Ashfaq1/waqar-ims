@@ -89,6 +89,7 @@
                       @enderror
                     </div>
                   </div>
+                  @include('common.location-department-field', ['selectedDepartmentId' => $issuanceID->department_id])
                   <div class="form-group">
                     <label class="control-label col-md-3 col-sm-3 col-xs-12">Status</label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
@@ -130,31 +131,38 @@
       var assignTo = $('#assign-to').val();
       var isEmployee = assignTo === 'employee';
       var isLocation = assignTo === 'location';
+      var needsLocation = isEmployee || isLocation;
+      var needsDepartment = isLocation;
 
       $('#employee-assignment-field').toggle(isEmployee);
-      $('#location-assignment-field').toggle(isLocation);
+      $('#location-assignment-field').toggle(needsLocation);
 
       $('#issuance-employee').prop('disabled', !isEmployee);
-      $('#issuance-location').prop('disabled', !isLocation);
+      $('#issuance-location').prop('disabled', !needsLocation);
 
       if (!isEmployee) {
         $('#issuance-employee').val(null);
       }
-      if (!isLocation) {
+      if (!needsLocation) {
         $('#issuance-location').val(null);
       }
+      refreshIssuanceDepartments(needsDepartment);
 
       setTimeout(function () {
         if (isEmployee) {
           fixSelectWidth($('#issuance-employee'));
         }
-        if (isLocation) {
+        if (needsLocation) {
           fixSelectWidth($('#issuance-location'));
         }
       }, 0);
     }
 
     $('#assign-to').on('change', toggleAssignmentFields);
+    $('#issuance-location').on('change', function () {
+      window.selectedIssuanceDepartment = null;
+      refreshIssuanceDepartments($('#assign-to').val() === 'location');
+    });
     toggleAssignmentFields();
   });
 </script>

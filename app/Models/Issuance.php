@@ -27,6 +27,11 @@ class Issuance extends Model
         return $this->belongsTo(Location::class, 'location_id');
     }
 
+    public function assignedDepartment()
+    {
+        return $this->belongsTo(Department::class, 'department_id');
+    }
+
     public function getLocationDisplayAttribute(): string
     {
         if ($this->assignedLocation?->name) {
@@ -65,6 +70,13 @@ class Issuance extends Model
             'employee' => 'Employee',
             default => $this->employee_id ? 'Employee' : (($this->location_id || trim((string) ($this->attributes['location'] ?? '')) !== '') ? 'Location' : '-'),
         };
+    }
+
+    public function getDepartmentDisplayAttribute(): string
+    {
+        return $this->assignedDepartment?->dep_name
+            ?? $this->getEmployee?->getDepartment?->dep_name
+            ?? '-';
     }
 
     public function getDaysHeldAttribute(): ?int
