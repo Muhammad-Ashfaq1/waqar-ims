@@ -65,12 +65,6 @@
                       @enderror
                     </div>
                   </div>
-                  <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12">Date of Issuance <span class="required">*</span></label>
-                    <div class="col-md-6 col-sm-6 col-xs-12">
-                      <input type="date" class="form-control" name="issuance_date" value="{{ optional($issuanceID->issuance_date)->format('Y-m-d') }}" readonly>
-                    </div>
-                  </div>
                   <div class="form-group" id="location-assignment-field" style="display: none;">
                     <label class="control-label col-md-3 col-sm-3 col-xs-12">Location <span class="required">*</span></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
@@ -90,6 +84,12 @@
                     </div>
                   </div>
                   @include('common.location-department-field', ['selectedDepartmentId' => $issuanceID->department_id])
+                  <div class="form-group">
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12">Date of Issuance <span class="required">*</span></label>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                      <input type="date" class="form-control" name="issuance_date" value="{{ optional($issuanceID->issuance_date)->format('Y-m-d') }}" readonly>
+                    </div>
+                  </div>
                   <div class="form-group">
                     <label class="control-label col-md-3 col-sm-3 col-xs-12">Status</label>
                     <div class="col-md-6 col-sm-6 col-xs-12">

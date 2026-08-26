@@ -71,17 +71,6 @@
                       @enderror
                     </div>
                   </div>
-                  <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12">Date of Issuance <span class="required">*</span></label>
-                    <div class="col-md-6 col-sm-6 col-xs-12">
-                      <input type="date" class="form-control" name="issuance_date" value="{{old('issuance_date')}}">
-                    </div>
-                    <div class="col-md-3 col-sm-3 col-xs-12">
-                      @error('issuance_date')
-                        <span class="form-control-feedback" style="position:static; display:inline-block; height:auto; width:auto;">{{ $message }}</span>
-                      @enderror
-                    </div>
-                  </div>
                   <div class="form-group" id="location-assignment-field" style="display: none;">
                     <label class="control-label col-md-3 col-sm-3 col-xs-12">Location <span class="required">*</span></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
@@ -101,6 +90,17 @@
                     </div>
                   </div>
                   @include('common.location-department-field', ['selectedDepartmentId' => null])
+                  <div class="form-group">
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12">Date of Issuance <span class="required">*</span></label>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                      <input type="date" class="form-control" name="issuance_date" value="{{old('issuance_date')}}">
+                    </div>
+                    <div class="col-md-3 col-sm-3 col-xs-12">
+                      @error('issuance_date')
+                        <span class="form-control-feedback" style="position:static; display:inline-block; height:auto; width:auto;">{{ $message }}</span>
+                      @enderror
+                    </div>
+                  </div>
                 <div class="ln_solid"></div>
                 <div class="form-group">
                   <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
