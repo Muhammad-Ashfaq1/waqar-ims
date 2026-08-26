@@ -28,7 +28,6 @@ class LocationController extends Controller
             Location::create([
                 'name' => trim($request->input('name')),
                 'slug' => $request->input('slug'),
-                'location_type' => $request->input('location_type'),
                 'is_active' => $request->boolean('is_active'),
             ]);
 
@@ -69,7 +68,6 @@ class LocationController extends Controller
             $location->update([
                 'name' => trim($request->input('name')),
                 'slug' => $request->input('slug'),
-                'location_type' => $request->input('location_type'),
                 'is_active' => $request->boolean('is_active'),
             ]);
 

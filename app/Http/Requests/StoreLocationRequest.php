@@ -2,10 +2,8 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\LocationType;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Enum;
 
 class StoreLocationRequest extends FormRequest
 {
@@ -56,7 +54,6 @@ class StoreLocationRequest extends FormRequest
                 'max:255',
                 Rule::unique('locations', 'slug')->ignore($locationId),
             ],
-            'location_type' => ['required', new Enum(LocationType::class)],
             'is_active' => 'required|in:0,1',
         ];
     }
@@ -72,8 +69,6 @@ class StoreLocationRequest extends FormRequest
             'slug.min' => 'Slug must be at least 2 characters',
             'slug.max' => 'Slug must not exceed 255 characters',
             'slug.unique' => 'This slug already exists',
-            'location_type.required' => 'Please select a location type',
-            'location_type.enum' => 'Please select a valid location type',
             'is_active.required' => 'Please select a status',
             'is_active.in' => 'Please select a valid status',
         ];

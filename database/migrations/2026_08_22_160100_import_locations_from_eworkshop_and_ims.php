@@ -12,43 +12,44 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (DB::getDriverName() === 'mysql') {
+        if (DB::getDriverName() === 'mysql' && Schema::hasColumn('locations', 'location_type')) {
             DB::statement("ALTER TABLE locations MODIFY location_type ENUM('town', 'workshop') NOT NULL DEFAULT 'town'");
         }
 
         $now = now();
 
         $rows = [
-            ['name' => 'Children Workshop', 'location_type' => 'workshop'],
-            ['name' => 'Outfall Road Workshop South', 'location_type' => 'workshop'],
-            ['name' => 'Outfall Road Workshop North', 'location_type' => 'workshop'],
-            ['name' => 'Thokari Workshop', 'location_type' => 'workshop'],
+            ['name' => 'Children Workshop'],
+            ['name' => 'Outfall Road Workshop South'],
+            ['name' => 'Outfall Road Workshop North'],
+            ['name' => 'Thokari Workshop'],
 
-            ['name' => 'Allama Iqbal Town', 'location_type' => 'town'],
-            ['name' => 'Aziz Bhatti Town', 'location_type' => 'town'],
-            ['name' => 'DGBT', 'location_type' => 'town'],
-            ['name' => 'Gulberg Town', 'location_type' => 'town'],
-            ['name' => 'Nishtar Town', 'location_type' => 'town'],
-            ['name' => 'Nishter Town', 'location_type' => 'town'],
-            ['name' => 'North Workshop', 'location_type' => 'town'],
-            ['name' => 'Ravi Town', 'location_type' => 'town'],
-            ['name' => 'Ring Road', 'location_type' => 'town'],
-            ['name' => 'Samanabad Town', 'location_type' => 'town'],
-            ['name' => 'Shalimar Town', 'location_type' => 'town'],
-            ['name' => 'Wahga Town', 'location_type' => 'town'],
-            ['name' => 'Night Operations', 'location_type' => 'town'],
-            ['name' => 'Compost Plant', 'location_type' => 'town'],
-            ['name' => 'Lakhodair', 'location_type' => 'town'],
-            ['name' => 'Rajgarh Centre', 'location_type' => 'town'],
-            ['name' => 'RWMC', 'location_type' => 'town'],
-            ['name' => 'Communication', 'location_type' => 'town'],
-            ['name' => 'MBS Multan', 'location_type' => 'town'],
-            ['name' => 'TR-Saggian', 'location_type' => 'town'],
-            ['name' => 'TR-Valencia', 'location_type' => 'town'],
-            ['name' => 'Pool Vehicle', 'location_type' => 'town'],
-            ['name' => 'Pole Vehicle', 'location_type' => 'town'],
+            ['name' => 'Allama Iqbal Town'],
+            ['name' => 'Aziz Bhatti Town'],
+            ['name' => 'DGBT'],
+            ['name' => 'Gulberg Town'],
+            ['name' => 'Nishtar Town'],
+            ['name' => 'Nishter Town'],
+            ['name' => 'North Workshop'],
+            ['name' => 'Ravi Town'],
+            ['name' => 'Ring Road'],
+            ['name' => 'Samanabad Town'],
+            ['name' => 'Shalimar Town'],
+            ['name' => 'Wahga Town'],
+            ['name' => 'Night Operations'],
+            ['name' => 'Compost Plant'],
+            ['name' => 'Lakhodair'],
+            ['name' => 'Rajgarh Centre'],
+            ['name' => 'RWMC'],
+            ['name' => 'Communication'],
+            ['name' => 'MBS Multan'],
+            ['name' => 'TR-Saggian'],
+            ['name' => 'TR-Valencia'],
+            ['name' => 'Pool Vehicle'],
+            ['name' => 'Pole Vehicle'],
         ];
 
+        $hasLocationType = Schema::hasColumn('locations', 'location_type');
         $seen = [];
         foreach ($rows as $row) {
             $name = trim($row['name']);
@@ -64,14 +65,19 @@ return new class extends Migration
                 continue;
             }
 
-            DB::table('locations')->insert([
+            $insertData = [
                 'name' => $name,
                 'slug' => $slug,
-                'location_type' => $row['location_type'],
                 'is_active' => 1,
                 'created_at' => $now,
                 'updated_at' => $now,
-            ]);
+            ];
+
+            if ($hasLocationType) {
+                $insertData['location_type'] = 'town';
+            }
+
+            DB::table('locations')->insert($insertData);
         }
     }
 

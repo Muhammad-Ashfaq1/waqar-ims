@@ -29,7 +29,6 @@
                   <th>Sr.</th>
                   <th>Location</th>
                   <th>Slug</th>
-                  <th>Type</th>
                   <th>Status</th>
                   <th>Created</th>
                   <th>Action</th>
@@ -42,7 +41,6 @@
                   <td>{{ ++$count }}</td>
                   <td>{{ $data->name }}</td>
                   <td>{{ $data->slug }}</td>
-                  <td>{{ $data->type_label }}</td>
                   <td>
                     @if($data->is_active)
                       <span class="label label-success">Active</span>

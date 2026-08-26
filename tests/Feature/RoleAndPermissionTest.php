@@ -146,7 +146,6 @@ describe('Super Admin Capabilities', function () {
         $locRes = $this->post('/add-location', [
             'name' => 'Outfall Workshop',
             'slug' => 'outfall-workshop',
-            'location_type' => 'workshop',
             'is_active' => '1',
         ]);
         $locRes->assertRedirect('locationinfo');
@@ -203,7 +202,6 @@ describe('Super Admin Capabilities', function () {
         $loc = Location::create([
             'name' => 'Headquarters',
             'slug' => 'headquarters',
-            'location_type' => 'town',
             'is_active' => true,
         ]);
         $loc->departments()->attach($dep->id);
@@ -266,7 +264,6 @@ describe('Inventory Manager Capabilities & Restrictions', function () {
         $loc = Location::create([
             'name' => 'Central Workshop',
             'slug' => 'central-workshop',
-            'location_type' => 'workshop',
             'is_active' => true,
         ]);
         $loc->departments()->attach($dep->id);
@@ -331,7 +328,6 @@ describe('Inventory Manager Capabilities & Restrictions', function () {
         $this->post('/add-location', [
             'name' => 'Illegal Location',
             'slug' => 'illegal-location',
-            'location_type' => 'workshop',
         ])->assertForbidden();
     });
 

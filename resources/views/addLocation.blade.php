@@ -39,22 +39,6 @@
                 </div>
               </div>
               <div class="form-group">
-                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="location-type">Location Type <span class="required">*</span></label>
-                <div class="col-md-6 col-sm-6 col-xs-12">
-                  <select id="location-type" name="location_type" class="form-control">
-                    <option value="">Select Location Type</option>
-                    @foreach(\App\Enums\LocationType::options() as $value => $label)
-                      <option value="{{ $value }}" {{ old('location_type') === $value ? 'selected' : '' }}>{{ $label }}</option>
-                    @endforeach
-                  </select>
-                </div>
-                <div class="col-md-3 col-sm-3 col-xs-12">
-                  @error('location_type')
-                    <span class="form-control-feedback" style="position:static; display:inline-block; height:auto; width:auto;">{{ $message }}</span>
-                  @enderror
-                </div>
-              </div>
-              <div class="form-group">
                 <label class="control-label col-md-3 col-sm-3 col-xs-12" for="is-active">Status <span class="required">*</span></label>
                 <div class="col-md-6 col-sm-6 col-xs-12">
                   <select id="is-active" name="is_active" class="form-control">

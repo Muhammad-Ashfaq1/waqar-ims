@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\LocationType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -15,7 +14,6 @@ class Location extends Model
     protected $fillable = [
         'name',
         'slug',
-        'location_type',
         'is_active',
     ];
 
@@ -23,13 +21,8 @@ class Location extends Model
     {
         return [
             'is_active' => 'boolean',
-            'location_type' => LocationType::class,
         ];
     }
-
-    public const LOCATION_TYPE_TOWN = 'town';
-
-    public const LOCATION_TYPE_WORKSHOP = 'workshop';
 
     public const IS_ACTIVE = 1;
 
@@ -48,13 +41,6 @@ class Location extends Model
     public function departments(): BelongsToMany
     {
         return $this->belongsToMany(Department::class)->withTimestamps();
-    }
-
-    public function getTypeLabelAttribute(): string
-    {
-        return $this->location_type instanceof LocationType
-            ? $this->location_type->label()
-            : LocationType::tryFrom((string) $this->location_type)?->label() ?? '—';
     }
 
     public function scopeActive($query)
