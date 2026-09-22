@@ -441,3 +441,126 @@ describe('Inactive User Blocking', function () {
         $this->assertGuest();
     });
 });
+
+describe('Admin Stock Editing Permissions and Capabilities', function () {
+    beforeEach(function () {
+        $this->admin = User::where('email', 'admin@ims.lwmc.com')->first();
+        $this->inventoryUser = User::where('email', 'inventory@ims.lwmc.com')->first();
+        $this->readOnlyUser = User::where('email', 'employee@ims.lwmc.com')->first();
+
+        $this->asset1 = Asset::create(['type' => 'Printer']);
+        $this->asset2 = Asset::create(['type' => 'Laptop']);
+
+        $this->stock = Stock::create([
+            'asset_id' => $this->asset1->id,
+            'model' => 'HP Laserjet M 806',
+            'serial_no' => '123456',
+            'ram' => '-',
+            'rom' => '-',
+            'processor' => '-',
+            'generation' => '-',
+            'purchase_date' => '2026-01-15',
+            'expiry_date' => '2029-01-15',
+            'status' => 'In Stock',
+        ]);
+    });
+
+    it('allows super admin to view updateStock page with editable form and asset types', function () {
+        $response = $this->actingAs($this->admin)->get("/updateStock/{$this->stock->id}");
+
+        $response->assertOk();
+        $response->assertViewHas('stockID', $this->stock);
+        $response->assertViewHas('assetlist');
+        $response->assertSee('HP Laserjet M 806');
+        $response->assertSee('123456');
+        $response->assertSee('Printer');
+        $response->assertSee('Laptop');
+        // Ensure inputs are not readonly
+        $response->assertDontSee('name="model" readonly', false);
+        $response->assertDontSee('name="serial" readonly', false);
+    });
+
+    it('allows super admin to edit all asset stock details', function () {
+        $response = $this->actingAs($this->admin)->put("/editData/{$this->stock->id}", [
+            'assettype' => $this->asset2->id,
+            'model' => 'ThinkPad T14 Gen 4',
+            'serial' => 'SN-TP-9999',
+            'ram' => '32GB',
+            'rom' => '1TB NVMe',
+            'processor' => 'Intel Core i7-1370P',
+            'generation' => '13th Gen',
+            'purchase_date' => '2026-05-10',
+            'expiry_date' => '2031-05-10',
+            'status' => 'In Stock',
+        ]);
+
+        $response->assertRedirect('stocklist');
+
+        $this->stock->refresh();
+        expect($this->stock->asset_id)->toBe($this->asset2->id);
+        expect($this->stock->model)->toBe('ThinkPad T14 Gen 4');
+        expect($this->stock->serial_no)->toBe('SN-TP-9999');
+        expect($this->stock->ram)->toBe('32GB');
+        expect($this->stock->rom)->toBe('1TB NVMe');
+        expect($this->stock->processor)->toBe('Intel Core i7-1370P');
+        expect($this->stock->generation)->toBe('13th Gen');
+        expect($this->stock->purchase_date)->toBe('2026-05-10');
+        expect($this->stock->expiry_date)->toBe('2031-05-10');
+        expect($this->stock->status)->toBe('In Stock');
+    });
+
+    it('forbids inventory manager from accessing updateStock page', function () {
+        $response = $this->actingAs($this->inventoryUser)->get("/updateStock/{$this->stock->id}");
+        $response->assertForbidden();
+    });
+
+    it('forbids inventory manager from submitting stock edits', function () {
+        $response = $this->actingAs($this->inventoryUser)->put("/editData/{$this->stock->id}", [
+            'assettype' => $this->asset2->id,
+            'model' => 'Hacked Model',
+            'serial' => 'HACKED-1',
+            'purchase_date' => '2026-01-01',
+            'expiry_date' => '2029-01-01',
+            'status' => 'Dead',
+        ]);
+        $response->assertForbidden();
+
+        $this->stock->refresh();
+        expect($this->stock->model)->toBe('HP Laserjet M 806');
+    });
+
+    it('forbids read-only user from accessing or updating stock', function () {
+        $this->actingAs($this->readOnlyUser)
+            ->get("/updateStock/{$this->stock->id}")
+            ->assertForbidden();
+
+        $this->actingAs($this->readOnlyUser)
+            ->put("/editData/{$this->stock->id}", [
+                'assettype' => $this->asset2->id,
+                'model' => 'Hacked Model',
+                'serial' => 'HACKED-1',
+                'purchase_date' => '2026-01-01',
+                'expiry_date' => '2029-01-01',
+                'status' => 'Dead',
+            ])
+            ->assertForbidden();
+    });
+
+    it('renders edit stock button on stocklist only for admin role', function () {
+        // Admin sees the edit link to updateStock
+        $adminView = $this->actingAs($this->admin)->get('/stocklist');
+        $adminView->assertOk();
+        $adminView->assertSee(route('editSt', $this->stock->id));
+
+        // Inventory Manager does not see edit link to updateStock
+        $invView = $this->actingAs($this->inventoryUser)->get('/stocklist');
+        $invView->assertOk();
+        $invView->assertDontSee(route('editSt', $this->stock->id));
+
+        // Read Only User does not see edit link to updateStock
+        $roView = $this->actingAs($this->readOnlyUser)->get('/stocklist');
+        $roView->assertOk();
+        $roView->assertDontSee(route('editSt', $this->stock->id));
+    });
+});
+

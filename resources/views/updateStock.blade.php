@@ -22,90 +22,104 @@
             </div>
             <div class="x_content">
               <br />
-              <form id="demo-form2" class="form-horizontal form-label-left" method="POST" action="/editData/{{$stockID->id}}">
+              <form id="demo-form2" class="form-horizontal form-label-left" method="POST" action="{{ url('editData/'.$stockID->id) }}">
                 @csrf
                 @method('PUT')
                 <div class="form-group">
-                  <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Asset Type <span class="required">*</span>
+                  <label class="control-label col-md-3 col-sm-3 col-xs-12" for="assettype">Asset Type <span class="required">*</span>
                   </label>
                   <div class="col-md-6 col-sm-6 col-xs-12">
-                    <input type="text" readonly class="form-control col-md-7 col-xs-12" name="asset" value="{{$stockID->GetAsset['type']}}">
+                    <select class="form-control" name="assettype" id="assettype" required>
+                      <option value="">--Select Asset Type--</option>
+                      @foreach ($assetlist as $asset)
+                        <option value="{{ $asset->id }}" {{ (string) old('assettype', $stockID->asset_id) === (string) $asset->id ? 'selected' : '' }}>
+                          {{ $asset->type }}
+                        </option>
+                      @endforeach
+                    </select>
+                    <span class="form-control-feedback right">@error('assettype') {{$message}} @enderror</span>
                   </div>
                 </div>
                 <div class="form-group">
-                  <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Model <span class="required">*</span>
+                  <label class="control-label col-md-3 col-sm-3 col-xs-12" for="model">Model <span class="required">*</span>
                   </label>
                   <div class="col-md-6 col-sm-6 col-xs-12">
-                    <input type="text" readonly class="form-control col-md-7 col-xs-12" name="model" value="{{$stockID->model}}">
+                    <input type="text" class="form-control col-md-7 col-xs-12" name="model" id="model" value="{{ old('model', $stockID->model) }}" required>
                     <span class="form-control-feedback right">@error('model') {{$message}} @enderror</span>
                   </div>
                 </div>
                 <div class="form-group">
-                  <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Serial No. <span class="required">*</span>
+                  <label class="control-label col-md-3 col-sm-3 col-xs-12" for="serial">Serial No. <span class="required">*</span>
                   </label>
                   <div class="col-md-6 col-sm-6 col-xs-12">
-                    <input type="text" readonly class="form-control col-md-7 col-xs-12" name="serial" value="{{$stockID->serial_no}}">
+                    <input type="text" class="form-control col-md-7 col-xs-12" name="serial" id="serial" value="{{ old('serial', $stockID->serial_no) }}" required>
                     <span class="form-control-feedback right">@error('serial') {{$message}} @enderror</span>
                   </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">RAM <span class="required">*</span>
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="ram">RAM
                     </label>
                     <div class="col-md-6 col-sm-6 col-xs-12" >
-                      <input type="text" readonly class="form-control col-md-7 col-xs-12" name="ram" value="{{$stockID->ram}}">
+                      <input type="text" class="form-control col-md-7 col-xs-12" name="ram" id="ram" value="{{ old('ram', $stockID->ram) }}">
                       <span class="form-control-feedback right">@error('ram') {{$message}} @enderror</span>
                     </div>
                   </div>
                   <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">ROM <span class="required">*</span>
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="rom">ROM
                     </label>
                     <div class="col-md-6 col-sm-6 col-xs-12" >
-                      <input type="text" readonly class="form-control col-md-7 col-xs-12" name="rom" value="{{$stockID->rom}}">
+                      <input type="text" class="form-control col-md-7 col-xs-12" name="rom" id="rom" value="{{ old('rom', $stockID->rom) }}">
                       <span class="form-control-feedback right">@error('rom') {{$message}} @enderror</span>
                     </div>
                   </div>
                   <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Processor <span class="required">*</span>
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="processor">Processor
                     </label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
-                      <input type="text" readonly class="form-control col-md-7 col-xs-12" name="processor" value="{{$stockID->processor}}">
+                      <input type="text" class="form-control col-md-7 col-xs-12" name="processor" id="processor" value="{{ old('processor', $stockID->processor) }}">
                       <span class="form-control-feedback right">@error('processor') {{$message}} @enderror</span>
                     </div>
                   </div>
                   <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Generation <span class="required">*</span>
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="generation">Generation
                     </label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
-                      <input type="text" readonly class="form-control col-md-7 col-xs-12" name="generation" value="{{$stockID->generation}}">
+                      <input type="text" class="form-control col-md-7 col-xs-12" name="generation" id="generation" value="{{ old('generation', $stockID->generation) }}">
                       <span class="form-control-feedback right">@error('generation') {{$message}} @enderror</span>
                     </div>
                   </div>
                 <div class="form-group">
-                  <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Purchase Date <span class="required">*</span>
+                  <label class="control-label col-md-3 col-sm-3 col-xs-12" for="purchase_date">Purchase Date <span class="required">*</span>
                   </label>
                   <div class="col-md-6 col-sm-6 col-xs-12">
-                    <input type="date" readonly class="form-control col-md-7 col-xs-12" name="purchase_date" value="{{$stockID->purchase_date}}">
+                    <input type="date" class="form-control col-md-7 col-xs-12" name="purchase_date" id="purchase_date" value="{{ old('purchase_date', $stockID->purchase_date ? \Carbon\Carbon::parse($stockID->purchase_date)->format('Y-m-d') : '') }}" required>
                     <span class="form-control-feedback right">@error('purchase_date') {{$message}} @enderror</span>
                   </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Expiry Date <span class="required">*</span>
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="expiry_date">Expiry Date <span class="required">*</span>
                     </label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
-                      <input type="date" readonly class="form-control col-md-7 col-xs-12" name="expiry_date" value="{{$stockID->expiry_date}}">
+                      <input type="date" class="form-control col-md-7 col-xs-12" name="expiry_date" id="expiry_date" value="{{ old('expiry_date', $stockID->expiry_date ? \Carbon\Carbon::parse($stockID->expiry_date)->format('Y-m-d') : '') }}" required>
                       <span class="form-control-feedback right">@error('expiry_date') {{$message}} @enderror</span>
                     </div>
                   </div>
                 <div class="form-group">
-                  <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Status <span class="required">*</span>
+                  <label class="control-label col-md-3 col-sm-3 col-xs-12" for="status">Status <span class="required">*</span>
                   </label>
                   <div class="col-md-6 col-sm-6 col-xs-12">
-                    <select class="form-control" name="status" >
-                        <option value="{{$stockID->status}}">{{$stockID->status}}</option>
-                        <option value="In Stock">In Stock</option>
-                        <option value="Dead">Dead</option>
-                        <option value="Repairable">Repairable</option>
-                        <option value="Not Receivable">Not Receivable</option>
+                    @php
+                      $statuses = ['In Stock', 'Issued', 'Dead', 'Repairable', 'Not Receivable'];
+                      if (!in_array($stockID->status, $statuses) && !empty($stockID->status)) {
+                          $statuses[] = $stockID->status;
+                      }
+                    @endphp
+                    <select class="form-control" name="status" id="status" required>
+                      @foreach ($statuses as $statusOption)
+                        <option value="{{ $statusOption }}" {{ old('status', $stockID->status) === $statusOption ? 'selected' : '' }}>
+                          {{ $statusOption }}
+                        </option>
+                      @endforeach
                     </select>
                     <span class="form-control-feedback right">@error('status') {{$message}} @enderror</span>
                   </div>

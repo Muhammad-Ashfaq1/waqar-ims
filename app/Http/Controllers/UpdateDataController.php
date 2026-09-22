@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Asset;
 use App\Models\Employee;
 use App\Models\Department;
 use App\Models\Stock;
@@ -25,6 +26,18 @@ class UpdateDataController extends Controller
     }
     //this function update employee data.
     public function UpdateEmployee(Request $request, $id){
+        $request->validate([
+            'designation' => 'required | string',
+            'department' =>'required',
+            'type' =>'required',
+            'status' =>'required'
+        ], [
+            'designation.required' => 'Designation is Required',
+            'department.required' => 'Department is Required',
+            'type.required' => 'Type is Required',
+            'status.required' => 'Status is Required'
+        ]);
+
         $designation = $request->input('designation');
         $department = $request->input('department');
         $type = $request->input('type');
@@ -41,21 +54,62 @@ class UpdateDataController extends Controller
         return redirect('employeeinfo');
     }
     //this function get ID of Stock.
-    public function GetStockID ($id){
-        $stockID = Stock::with('GetAsset')->find($id);
-        return view('updateStock', ['stockID' => $stockID]);
+    public function GetStockID (Request $request, $id){
+        $user = $request->user();
+        if (! $user || (! $user->isSuperAdmin() && ! $user->hasRole('admin'))) {
+            abort(403, 'Unauthorized. Only admin can edit stock.');
+        }
+
+        $stockID = Stock::with('GetAsset')->findOrFail($id);
+        $assetlist = Asset::orderBy('type')->get();
+
+        return view('updateStock', [
+            'stockID' => $stockID,
+            'assetlist' => $assetlist,
+        ]);
     }
     //this function update stock data.
     public function UpdateStock(Request $request, $id){
+        $user = $request->user();
+        if (! $user || (! $user->isSuperAdmin() && ! $user->hasRole('admin'))) {
+            abort(403, 'Unauthorized. Only admin can edit stock.');
+        }
+
         $request->validate([
-            'status' => 'required',
+            'assettype'     => 'required|exists:assets,id',
+            'model'         => 'required|string|max:255',
+            'serial'        => 'required|string|max:255',
+            'ram'           => 'nullable|string|max:255',
+            'rom'           => 'nullable|string|max:255',
+            'processor'     => 'nullable|string|max:255',
+            'generation'    => 'nullable|string|max:255',
+            'purchase_date' => 'required|date',
+            'expiry_date'   => 'required|date',
+            'status'        => 'required|string|max:255',
         ], [
-            'status.required' => 'Status is required',
+            'assettype.required'     => 'Asset Type is required',
+            'assettype.exists'       => 'Selected asset type is invalid',
+            'model.required'         => 'Model is required',
+            'serial.required'        => 'Serial No is required',
+            'purchase_date.required' => 'Purchase Date is required',
+            'purchase_date.date'     => 'Must be a valid date',
+            'expiry_date.required'   => 'Expiry Date is required',
+            'expiry_date.date'       => 'Must be a valid date',
+            'status.required'        => 'Status is required',
         ]);
 
         $status = $request->input('status');
 
-        $stock = Stock::find($id);
+        $stock = Stock::findOrFail($id);
+        $stock->asset_id = $request->input('assettype');
+        $stock->model = $request->input('model');
+        $stock->serial_no = $request->input('serial');
+        $stock->ram = $request->input('ram');
+        $stock->rom = $request->input('rom');
+        $stock->processor = $request->input('processor');
+        $stock->generation = $request->input('generation');
+        $stock->purchase_date = $request->input('purchase_date');
+        $stock->expiry_date = $request->input('expiry_date');
         $stock->status = $status;
         $stock->save();
 

@@ -69,13 +69,13 @@
                     <td>{{$data->status}}</td>
                     <td>{{$data->created_at}}</td>
                     <td>
-                      @can('inventory.manage')
-                      <a href="{{route('editSt', $data->id)}}" class="btn btn-app" style="padding: 5px 5px; min-width: 39px; height: 31px;">
+                      @if(auth()->user()?->isSuperAdmin() || auth()->user()?->hasRole('admin'))
+                      <a href="{{route('editSt', $data->id)}}" class="btn btn-app" style="padding: 5px 5px; min-width: 39px; height: 31px;" title="Edit stock">
                         <i class="fa fa-edit"></i>
                       </a>
                       @else
                       —
-                      @endcan
+                      @endif
                     </td>
 
                   </tr>
