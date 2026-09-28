@@ -43,6 +43,7 @@
                     <th>Sr.</th>
                     <th>Assigned Type</th>
                     <th>Assign To</th>
+                    <th>Department</th>
                     <th>Asset Type</th>
                     <th>Model</th>
                     <th>Serial No.</th>
@@ -62,6 +63,7 @@
                     <td>{{$counter++}}</td>
                     <td>{{ $data->assignment_type_label }}</td>
                     <td>{{ optional($data->getEmployee)->emp_name ?? $data->location_display }}</td>
+                    <td>{{ $data->department_display }}</td>
                     <td>{{$data->getStock->getAsset['type']}}</td>
                     <td>{{$data->getStock['model']}}</td>
                     <td>{{$data->getStock['serial_no']}}</td>
