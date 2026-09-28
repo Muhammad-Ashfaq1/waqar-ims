@@ -309,7 +309,17 @@
                 </tr>
               </thead>
               <tbody>
+                @php
+                  $sumTotal = 0;
+                  $sumInStock = 0;
+                  $sumIssued = 0;
+                @endphp
                 @forelse ($stockByType as $row)
+                @php
+                  $sumTotal += (int) $row->total;
+                  $sumInStock += (int) $row->in_stock;
+                  $sumIssued += (int) $row->issued;
+                @endphp
                 <tr>
                   <td>{{ $row->type }}</td>
                   <td>{{ $row->total }}</td>
@@ -320,6 +330,16 @@
                 <tr><td colspan="4">No stock records yet.</td></tr>
                 @endforelse
               </tbody>
+              @if(count($stockByType) > 0)
+              <tfoot>
+                <tr style="font-weight: 700; background: rgba(var(--ims-primary-rgb), 0.06); border-top: 2px solid rgba(47, 43, 61, 0.12);">
+                  <td>Total</td>
+                  <td><strong>{{ $sumTotal }}</strong></td>
+                  <td><strong>{{ $sumInStock }}</strong></td>
+                  <td><strong>{{ $sumIssued }}</strong></td>
+                </tr>
+              </tfoot>
+              @endif
             </table>
           </div>
         </div>
@@ -344,21 +364,55 @@
                   <th>Desktops</th>
                   <th>Printers</th>
                   <th>Scanners</th>
+                  <th>Total</th>
                 </tr>
               </thead>
               <tbody>
+                @php
+                  $totalLaptops = 0;
+                  $totalDesktops = 0;
+                  $totalPrinters = 0;
+                  $totalScanners = 0;
+                  $grandTotal = 0;
+                @endphp
                 @forelse ($issuedByDepartment as $row)
+                @php
+                  $laptops = (int) $row->laptops;
+                  $desktops = (int) $row->desktops;
+                  $printers = (int) $row->printers;
+                  $scanners = (int) $row->scanners;
+                  $rowTotal = (int) $row->total;
+
+                  $totalLaptops += $laptops;
+                  $totalDesktops += $desktops;
+                  $totalPrinters += $printers;
+                  $totalScanners += $scanners;
+                  $grandTotal += $rowTotal;
+                @endphp
                 <tr>
                   <td>{{ $row->dep_name }}</td>
-                  <td>{{ (int) $row->laptops }}</td>
-                  <td>{{ (int) $row->desktops }}</td>
-                  <td>{{ (int) $row->printers }}</td>
-                  <td>{{ (int) $row->scanners }}</td>
+                  <td>{{ $laptops }}</td>
+                  <td>{{ $desktops }}</td>
+                  <td>{{ $printers }}</td>
+                  <td>{{ $scanners }}</td>
+                  <td><strong>{{ $rowTotal }}</strong></td>
                 </tr>
                 @empty
-                <tr><td colspan="5">No assets currently issued.</td></tr>
+                <tr><td colspan="6">No assets currently issued.</td></tr>
                 @endforelse
               </tbody>
+              @if(count($issuedByDepartment) > 0)
+              <tfoot>
+                <tr style="font-weight: 700; background: rgba(var(--ims-primary-rgb), 0.06); border-top: 2px solid rgba(47, 43, 61, 0.12);">
+                  <td>Total</td>
+                  <td>{{ $totalLaptops }}</td>
+                  <td>{{ $totalDesktops }}</td>
+                  <td>{{ $totalPrinters }}</td>
+                  <td>{{ $totalScanners }}</td>
+                  <td><strong>{{ $grandTotal }}</strong></td>
+                </tr>
+              </tfoot>
+              @endif
             </table>
           </div>
         </div>
