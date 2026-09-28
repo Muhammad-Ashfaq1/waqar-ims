@@ -45,19 +45,21 @@ class DashboardController extends Controller
             ->get();
 
         $issuedByDepartment = DB::table('issuances')
-            ->join('employees', 'employees.id', '=', 'issuances.employee_id')
-            ->leftJoin('departments', 'departments.id', '=', 'employees.department_id')
+            ->leftJoin('employees', 'employees.id', '=', 'issuances.employee_id')
+            ->leftJoin('departments as emp_dept', 'emp_dept.id', '=', 'employees.department_id')
+            ->leftJoin('departments as direct_dept', 'direct_dept.id', '=', 'issuances.department_id')
             ->join('stocks', 'stocks.id', '=', 'issuances.stock_id')
             ->join('assets', 'assets.id', '=', 'stocks.asset_id')
             ->whereNull('issuances.return_date')
             ->select(
-                DB::raw("COALESCE(departments.dep_name, 'Unassigned') as dep_name"),
+                DB::raw("COALESCE(direct_dept.dep_name, emp_dept.dep_name, 'Unassigned') as dep_name"),
                 DB::raw("SUM(CASE WHEN assets.id = 6 THEN 1 ELSE 0 END) as laptops"),
                 DB::raw("SUM(CASE WHEN assets.id = 3 THEN 1 ELSE 0 END) as desktops"),
                 DB::raw("SUM(CASE WHEN assets.id = 8 THEN 1 ELSE 0 END) as printers"),
-                DB::raw("SUM(CASE WHEN assets.id = 9 THEN 1 ELSE 0 END) as scanners")
+                DB::raw("SUM(CASE WHEN assets.id = 9 THEN 1 ELSE 0 END) as scanners"),
+                DB::raw("COUNT(*) as total")
             )
-            ->groupBy('departments.dep_name')
+            ->groupBy(DB::raw("COALESCE(direct_dept.dep_name, emp_dept.dep_name, 'Unassigned')"))
             ->orderBy('dep_name')
             ->get();
 
